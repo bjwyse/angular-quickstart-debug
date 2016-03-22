@@ -139,10 +139,6 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
         return _it(jsmIIt, name, fn, timeOut);
     }
     exports_1("iit", iit);
-    function isInInnerZone() {
-        return lang_1.global.zone._innerZone === true;
-    }
-    exports_1("isInInnerZone", isInInnerZone);
     return {
         setters:[
             function (collection_1_1) {

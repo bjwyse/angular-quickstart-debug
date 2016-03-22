@@ -47,8 +47,10 @@ System.register(['angular2/src/core/di', 'angular2/src/facade/collection', 'angu
              */
             Testability = (function () {
                 function Testability(_ngZone) {
+                    this._ngZone = _ngZone;
                     /** @internal */
                     this._pendingCount = 0;
+                    this._isZoneStable = true;
                     /**
                      * Whether any work was done since the last 'whenStable' callback. This is
                      * useful to detect if this could have potentially destabilized another
@@ -58,23 +60,22 @@ System.register(['angular2/src/core/di', 'angular2/src/facade/collection', 'angu
                     this._didWork = false;
                     /** @internal */
                     this._callbacks = [];
-                    /** @internal */
-                    this._isAngularEventPending = false;
-                    this._watchAngularEvents(_ngZone);
+                    this._watchAngularEvents();
                 }
                 /** @internal */
-                Testability.prototype._watchAngularEvents = function (_ngZone) {
+                Testability.prototype._watchAngularEvents = function () {
                     var _this = this;
-                    async_1.ObservableWrapper.subscribe(_ngZone.onTurnStart, function (_) {
+                    async_1.ObservableWrapper.subscribe(this._ngZone.onUnstable, function (_) {
                         _this._didWork = true;
-                        _this._isAngularEventPending = true;
+                        _this._isZoneStable = false;
                     });
-                    _ngZone.runOutsideAngular(function () {
-                        async_1.ObservableWrapper.subscribe(_ngZone.onEventDone, function (_) {
-                            if (!_ngZone.hasPendingTimers) {
-                                _this._isAngularEventPending = false;
+                    this._ngZone.runOutsideAngular(function () {
+                        async_1.ObservableWrapper.subscribe(_this._ngZone.onStable, function (_) {
+                            ng_zone_1.NgZone.assertNotInAngularZone();
+                            lang_1.scheduleMicroTask(function () {
+                                _this._isZoneStable = true;
                                 _this._runCallbacksIfReady();
-                            }
+                            });
                         });
                     });
                 };
@@ -91,30 +92,31 @@ System.register(['angular2/src/core/di', 'angular2/src/facade/collection', 'angu
                     this._runCallbacksIfReady();
                     return this._pendingCount;
                 };
-                Testability.prototype.isStable = function () { return this._pendingCount == 0 && !this._isAngularEventPending; };
+                Testability.prototype.isStable = function () {
+                    return this._isZoneStable && this._pendingCount == 0 && !this._ngZone.hasPendingMacrotasks;
+                };
                 /** @internal */
                 Testability.prototype._runCallbacksIfReady = function () {
                     var _this = this;
-                    if (!this.isStable()) {
-                        this._didWork = true;
-                        return; // Not ready
+                    if (this.isStable()) {
+                        // Schedules the call backs in a new frame so that it is always async.
+                        lang_1.scheduleMicroTask(function () {
+                            while (_this._callbacks.length !== 0) {
+                                (_this._callbacks.pop())(_this._didWork);
+                            }
+                            _this._didWork = false;
+                        });
                     }
-                    // Schedules the call backs in a new frame so that it is always async.
-                    async_1.PromiseWrapper.resolve(null).then(function (_) {
-                        while (_this._callbacks.length !== 0) {
-                            (_this._callbacks.pop())(_this._didWork);
-                        }
-                        _this._didWork = false;
-                    });
+                    else {
+                        // Not Ready
+                        this._didWork = true;
+                    }
                 };
                 Testability.prototype.whenStable = function (callback) {
                     this._callbacks.push(callback);
                     this._runCallbacksIfReady();
                 };
                 Testability.prototype.getPendingRequestCount = function () { return this._pendingCount; };
-                // This only accounts for ngZone, and not pending counts. Use `whenStable` to
-                // check for stability.
-                Testability.prototype.isAngularEventPending = function () { return this._isAngularEventPending; };
                 Testability.prototype.findBindings = function (using, provider, exactMatch) {
                     // TODO(juliemr): implement.
                     return [];
@@ -144,6 +146,7 @@ System.register(['angular2/src/core/di', 'angular2/src/facade/collection', 'angu
                 };
                 TestabilityRegistry.prototype.getTestability = function (elem) { return this._applications.get(elem); };
                 TestabilityRegistry.prototype.getAllTestabilities = function () { return collection_1.MapWrapper.values(this._applications); };
+                TestabilityRegistry.prototype.getAllRootElements = function () { return collection_1.MapWrapper.keys(this._applications); };
                 TestabilityRegistry.prototype.findTestabilityInTree = function (elem, findInAncestors) {
                     if (findInAncestors === void 0) { findInAncestors = true; }
                     return _testabilityGetter.findTestabilityInTree(this, elem, findInAncestors);

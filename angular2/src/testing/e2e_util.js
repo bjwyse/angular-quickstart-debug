@@ -18,7 +18,7 @@ System.register(['selenium-webdriver'], function(exports_1, context_1) {
                 }
                 return logEntry.level.value > webdriver.logging.Level.WARNING.value;
             });
-            expect(filteredLog.length).toEqual(0);
+            expect(filteredLog).toEqual([]);
         });
     }
     exports_1("verifyNoBrowserErrors", verifyNoBrowserErrors);

@@ -170,7 +170,7 @@ System.register(['angular2/src/core/zone/ng_zone', 'angular2/src/facade/lang', '
                      * Retrieve the platform {@link Injector}, which is the parent injector for
                      * every Angular application on the page and provides singleton providers.
                      */
-                    get: function () { return exceptions_1.unimplemented(); },
+                    get: function () { throw exceptions_1.unimplemented(); },
                     enumerable: true,
                     configurable: true
                 });
@@ -235,7 +235,9 @@ System.register(['angular2/src/core/zone/ng_zone', 'angular2/src/facade/lang', '
                         try {
                             injector = _this.injector.resolveAndCreateChild(providers);
                             exceptionHandler = injector.get(exceptions_1.ExceptionHandler);
-                            zone.overrideOnErrorHandler(function (e, s) { return exceptionHandler.call(e, s); });
+                            async_1.ObservableWrapper.subscribe(zone.onError, function (error) {
+                                exceptionHandler.call(error.error, error.stackTrace);
+                            });
                         }
                         catch (e) {
                             if (lang_1.isPresent(exceptionHandler)) {
@@ -327,7 +329,7 @@ System.register(['angular2/src/core/zone/ng_zone', 'angular2/src/facade/lang', '
                     /** @internal */
                     this._enforceNoNewChanges = false;
                     if (lang_1.isPresent(this._zone)) {
-                        async_1.ObservableWrapper.subscribe(this._zone.onTurnDone, function (_) { _this._zone.run(function () { _this.tick(); }); });
+                        async_1.ObservableWrapper.subscribe(this._zone.onMicrotaskEmpty, function (_) { _this._zone.run(function () { _this.tick(); }); });
                     }
                     this._enforceNoNewChanges = lang_1.assertionsEnabled();
                 }
@@ -359,26 +361,22 @@ System.register(['angular2/src/core/zone/ng_zone', 'angular2/src/facade/lang', '
                                 completer.resolve(componentRef);
                             };
                             var tickResult = async_1.PromiseWrapper.then(compRefToken, tick);
-                            // THIS MUST ONLY RUN IN DART.
-                            // This is required to report an error when no components with a matching selector found.
-                            // Otherwise the promise will never be completed.
-                            // Doing this in JS causes an extra error message to appear.
-                            if (lang_1.IS_DART) {
-                                async_1.PromiseWrapper.then(tickResult, function (_) { });
-                            }
-                            async_1.PromiseWrapper.then(tickResult, null, function (err, stackTrace) { return completer.reject(err, stackTrace); });
+                            async_1.PromiseWrapper.then(tickResult, null, function (err, stackTrace) {
+                                completer.reject(err, stackTrace);
+                                exceptionHandler.call(err, stackTrace);
+                            });
                         }
                         catch (e) {
                             exceptionHandler.call(e, e.stack);
                             completer.reject(e, e.stack);
                         }
                     });
-                    return completer.promise.then(function (_) {
+                    return completer.promise.then(function (ref) {
                         var c = _this._injector.get(console_1.Console);
                         if (lang_1.assertionsEnabled()) {
                             c.log("Angular 2 is running in the development mode. Call enableProdMode() to enable the production mode.");
                         }
-                        return _;
+                        return ref;
                     });
                 };
                 /** @internal */

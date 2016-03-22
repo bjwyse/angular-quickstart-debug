@@ -2,7 +2,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var lang_1, exceptions_1, collection_1;
-    var _scheduler, _microtasks, _pendingPeriodicTimers, _pendingTimers;
+    var _scheduler, _microtasks, _pendingPeriodicTimers, _pendingTimers, FakeAsyncZoneSpec;
     /**
      * Wraps a function to be executed in the fakeAsync zone:
      * - microtasks are manually executed by calling `flushMicrotasks()`,
@@ -18,17 +18,10 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
      * @returns {Function} The function wrapped to be executed in the fakeAsync zone
      */
     function fakeAsync(fn) {
-        if (lang_1.global.zone._inFakeAsyncZone) {
+        if (Zone.current.get('inFakeAsyncZone')) {
             throw new Error('fakeAsync() calls can not be nested');
         }
-        var fakeAsyncZone = lang_1.global.zone.fork({
-            setTimeout: _setTimeout,
-            clearTimeout: _clearTimeout,
-            setInterval: _setInterval,
-            clearInterval: _clearInterval,
-            scheduleMicrotask: _scheduleMicrotask,
-            _inFakeAsyncZone: true
-        });
+        var fakeAsyncZone = Zone.current.fork(new FakeAsyncZoneSpec());
         return function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -84,7 +77,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
      */
     function tick(millis) {
         if (millis === void 0) { millis = 0; }
-        _assertInFakeAsyncZone();
+        FakeAsyncZoneSpec.assertInZone();
         flushMicrotasks();
         _scheduler.tick(millis);
     }
@@ -93,18 +86,14 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
      * Flush any pending microtasks.
      */
     function flushMicrotasks() {
-        _assertInFakeAsyncZone();
+        FakeAsyncZoneSpec.assertInZone();
         while (_microtasks.length > 0) {
             var microtask = collection_1.ListWrapper.removeAt(_microtasks, 0);
             microtask();
         }
     }
     exports_1("flushMicrotasks", flushMicrotasks);
-    function _setTimeout(fn, delay) {
-        var args = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            args[_i - 2] = arguments[_i];
-        }
+    function _setTimeout(fn, delay, args) {
         var cb = _fnAndFlush(fn);
         var id = _scheduler.scheduleFunction(cb, delay, args);
         _pendingTimers.push(id);
@@ -139,16 +128,8 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
             flushMicrotasks();
         };
     }
-    function _scheduleMicrotask(microtask) {
-        _microtasks.push(microtask);
-    }
     function _dequeueTimer(id) {
         return function () { collection_1.ListWrapper.remove(_pendingTimers, id); };
-    }
-    function _assertInFakeAsyncZone() {
-        if (!lang_1.global.zone || !lang_1.global.zone._inFakeAsyncZone) {
-            throw new Error('The code should be running in the fakeAsync zone to call this function');
-        }
     }
     return {
         setters:[
@@ -165,6 +146,52 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
             _microtasks = [];
             _pendingPeriodicTimers = [];
             _pendingTimers = [];
+            FakeAsyncZoneSpec = (function () {
+                function FakeAsyncZoneSpec() {
+                    this.name = 'fakeAsync';
+                    this.properties = { 'inFakeAsyncZone': true };
+                }
+                FakeAsyncZoneSpec.assertInZone = function () {
+                    if (!Zone.current.get('inFakeAsyncZone')) {
+                        throw new Error('The code should be running in the fakeAsync zone to call this function');
+                    }
+                };
+                FakeAsyncZoneSpec.prototype.onScheduleTask = function (delegate, current, target, task) {
+                    switch (task.type) {
+                        case 'microTask':
+                            _microtasks.push(task.invoke);
+                            break;
+                        case 'macroTask':
+                            switch (task.source) {
+                                case 'setTimeout':
+                                    task.data['handleId'] = _setTimeout(task.invoke, task.data['delay'], task.data['args']);
+                                    break;
+                                case 'setInterval':
+                                    task.data['handleId'] =
+                                        _setInterval(task.invoke, task.data['delay'], task.data['args']);
+                                    break;
+                                default:
+                                    task = delegate.scheduleTask(target, task);
+                            }
+                            break;
+                        case 'eventTask':
+                            task = delegate.scheduleTask(target, task);
+                            break;
+                    }
+                    return task;
+                };
+                FakeAsyncZoneSpec.prototype.onCancelTask = function (delegate, current, target, task) {
+                    switch (task.source) {
+                        case 'setTimeout':
+                            return _clearTimeout(task.data['handleId']);
+                        case 'setInterval':
+                            return _clearInterval(task.data['handleId']);
+                        default:
+                            return delegate.scheduleTask(target, task);
+                    }
+                };
+                return FakeAsyncZoneSpec;
+            }());
         }
     }
 });

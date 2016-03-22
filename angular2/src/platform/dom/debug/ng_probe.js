@@ -2,7 +2,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/core/di', 'angular2/s
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var lang_1, di_1, dom_adapter_1, debug_node_1, dom_renderer_1, core_1, debug_renderer_1;
-    var INSPECT_GLOBAL_NAME, ELEMENT_PROBE_PROVIDERS, ELEMENT_PROBE_PROVIDERS_PROD_MODE;
+    var CORE_TOKENS, INSPECT_GLOBAL_NAME, CORE_TOKENS_GLOBAL_NAME, ELEMENT_PROBE_PROVIDERS, ELEMENT_PROBE_PROVIDERS_PROD_MODE;
     /**
      * Returns a {@link DebugElement} for the given native DOM element, or
      * null if the given native element does not have an Angular view associated
@@ -20,6 +20,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/core/di', 'angular2/s
     }
     function _createRootRenderer(rootRenderer) {
         dom_adapter_1.DOM.setGlobalVar(INSPECT_GLOBAL_NAME, inspectNativeElement);
+        dom_adapter_1.DOM.setGlobalVar(CORE_TOKENS_GLOBAL_NAME, CORE_TOKENS);
         return new debug_renderer_1.DebugDomRootRenderer(rootRenderer);
     }
     return {
@@ -46,7 +47,9 @@ System.register(['angular2/src/facade/lang', 'angular2/src/core/di', 'angular2/s
                 debug_renderer_1 = debug_renderer_1_1;
             }],
         execute: function() {
+            CORE_TOKENS = lang_1.CONST_EXPR({ 'ApplicationRef': core_1.ApplicationRef, 'NgZone': core_1.NgZone });
             INSPECT_GLOBAL_NAME = 'ng.probe';
+            CORE_TOKENS_GLOBAL_NAME = 'ng.coreTokens';
             /**
              * Providers which support debugging Angular applications (e.g. via `ng.probe`).
              */

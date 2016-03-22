@@ -69,10 +69,6 @@ System.register(['angular2/src/facade/lang'], function(exports_1, context_1) {
                  * `Default` means that the change detector's mode will be set to `CheckAlways` during hydration.
                  */
                 ChangeDetectionStrategy[ChangeDetectionStrategy["Default"] = 5] = "Default";
-                /**
-                 * This is an experimental feature. Works only in Dart.
-                 */
-                ChangeDetectionStrategy[ChangeDetectionStrategy["OnPushObserve"] = 6] = "OnPushObserve";
             })(ChangeDetectionStrategy || (ChangeDetectionStrategy = {}));
             exports_1("ChangeDetectionStrategy", ChangeDetectionStrategy);
             /**
@@ -84,8 +80,7 @@ System.register(['angular2/src/facade/lang'], function(exports_1, context_1) {
                 ChangeDetectionStrategy.CheckAlways,
                 ChangeDetectionStrategy.Detached,
                 ChangeDetectionStrategy.OnPush,
-                ChangeDetectionStrategy.Default,
-                ChangeDetectionStrategy.OnPushObserve
+                ChangeDetectionStrategy.Default
             ]);
             /**
              * List of possible {@link ChangeDetectorState} values.

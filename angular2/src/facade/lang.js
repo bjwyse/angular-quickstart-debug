@@ -7,6 +7,10 @@ System.register([], function(exports_1, context_1) {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var globalScope, IS_DART, _global, Type, Math, Date, _devMode, _modeLocked, StringWrapper, StringJoiner, NumberParseError, NumberWrapper, RegExp, RegExpWrapper, RegExpMatcherWrapper, FunctionWrapper, Json, DateWrapper, _symbolIterator;
+    function scheduleMicroTask(fn) {
+        Zone.current.scheduleMicroTask('scheduleMicrotask', fn);
+    }
+    exports_1("scheduleMicroTask", scheduleMicroTask);
     function getTypeNameForDebugging(type) {
         return type['name'];
     }
@@ -115,6 +119,10 @@ System.register([], function(exports_1, context_1) {
         return val;
     }
     exports_1("deserializeEnum", deserializeEnum);
+    function resolveEnumToken(enumValue, val) {
+        return enumValue[val];
+    }
+    exports_1("resolveEnumToken", resolveEnumToken);
     // JS has NaN !== NaN
     function looseIdentical(a, b) {
         return a === b || typeof a === "number" && typeof b === "number" && isNaN(a) && isNaN(b);
@@ -199,6 +207,18 @@ System.register([], function(exports_1, context_1) {
         return value.constructor === type;
     }
     exports_1("hasConstructor", hasConstructor);
+    function bitWiseOr(values) {
+        return values.reduce(function (a, b) { return a | b; });
+    }
+    exports_1("bitWiseOr", bitWiseOr);
+    function bitWiseAnd(values) {
+        return values.reduce(function (a, b) { return a & b; });
+    }
+    exports_1("bitWiseAnd", bitWiseAnd);
+    function escape(s) {
+        return _global.encodeURI(s);
+    }
+    exports_1("escape", escape);
     return {
         setters:[],
         execute: function() {

@@ -1,48 +1,39 @@
-System.register(['./pipes/async_pipe', './pipes/uppercase_pipe', './pipes/lowercase_pipe', './pipes/json_pipe', './pipes/slice_pipe', './pipes/date_pipe', './pipes/number_pipe', './pipes/replace_pipe', 'angular2/src/facade/lang'], function(exports_1, context_1) {
+/**
+ * @module
+ * @description
+ * This module provides a set of common Pipes.
+ */
+System.register(['./pipes/async_pipe', './pipes/date_pipe', './pipes/json_pipe', './pipes/slice_pipe', './pipes/lowercase_pipe', './pipes/number_pipe', './pipes/uppercase_pipe', './pipes/replace_pipe', './pipes/i18n_plural_pipe', './pipes/i18n_select_pipe', './pipes/common_pipes'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var async_pipe_1, uppercase_pipe_1, lowercase_pipe_1, json_pipe_1, slice_pipe_1, date_pipe_1, number_pipe_1, replace_pipe_1, lang_1;
-    var COMMON_PIPES;
     return {
         setters:[
             function (async_pipe_1_1) {
-                async_pipe_1 = async_pipe_1_1;
                 exports_1({
                     "AsyncPipe": async_pipe_1_1["AsyncPipe"]
                 });
             },
-            function (uppercase_pipe_1_1) {
-                uppercase_pipe_1 = uppercase_pipe_1_1;
+            function (date_pipe_1_1) {
                 exports_1({
-                    "UpperCasePipe": uppercase_pipe_1_1["UpperCasePipe"]
-                });
-            },
-            function (lowercase_pipe_1_1) {
-                lowercase_pipe_1 = lowercase_pipe_1_1;
-                exports_1({
-                    "LowerCasePipe": lowercase_pipe_1_1["LowerCasePipe"]
+                    "DatePipe": date_pipe_1_1["DatePipe"]
                 });
             },
             function (json_pipe_1_1) {
-                json_pipe_1 = json_pipe_1_1;
                 exports_1({
                     "JsonPipe": json_pipe_1_1["JsonPipe"]
                 });
             },
             function (slice_pipe_1_1) {
-                slice_pipe_1 = slice_pipe_1_1;
                 exports_1({
                     "SlicePipe": slice_pipe_1_1["SlicePipe"]
                 });
             },
-            function (date_pipe_1_1) {
-                date_pipe_1 = date_pipe_1_1;
+            function (lowercase_pipe_1_1) {
                 exports_1({
-                    "DatePipe": date_pipe_1_1["DatePipe"]
+                    "LowerCasePipe": lowercase_pipe_1_1["LowerCasePipe"]
                 });
             },
             function (number_pipe_1_1) {
-                number_pipe_1 = number_pipe_1_1;
                 exports_1({
                     "NumberPipe": number_pipe_1_1["NumberPipe"],
                     "DecimalPipe": number_pipe_1_1["DecimalPipe"],
@@ -50,35 +41,32 @@ System.register(['./pipes/async_pipe', './pipes/uppercase_pipe', './pipes/lowerc
                     "CurrencyPipe": number_pipe_1_1["CurrencyPipe"]
                 });
             },
+            function (uppercase_pipe_1_1) {
+                exports_1({
+                    "UpperCasePipe": uppercase_pipe_1_1["UpperCasePipe"]
+                });
+            },
             function (replace_pipe_1_1) {
-                replace_pipe_1 = replace_pipe_1_1;
                 exports_1({
                     "ReplacePipe": replace_pipe_1_1["ReplacePipe"]
                 });
             },
-            function (lang_1_1) {
-                lang_1 = lang_1_1;
+            function (i18n_plural_pipe_1_1) {
+                exports_1({
+                    "I18nPluralPipe": i18n_plural_pipe_1_1["I18nPluralPipe"]
+                });
+            },
+            function (i18n_select_pipe_1_1) {
+                exports_1({
+                    "I18nSelectPipe": i18n_select_pipe_1_1["I18nSelectPipe"]
+                });
+            },
+            function (common_pipes_1_1) {
+                exports_1({
+                    "COMMON_PIPES": common_pipes_1_1["COMMON_PIPES"]
+                });
             }],
         execute: function() {
-            /**
-             * A collection of Angular core pipes that are likely to be used in each and every
-             * application.
-             *
-             * This collection can be used to quickly enumerate all the built-in pipes in the `pipes`
-             * property of the `@Component` or `@View` decorators.
-             */
-            exports_1("COMMON_PIPES", COMMON_PIPES = lang_1.CONST_EXPR([
-                async_pipe_1.AsyncPipe,
-                uppercase_pipe_1.UpperCasePipe,
-                lowercase_pipe_1.LowerCasePipe,
-                json_pipe_1.JsonPipe,
-                slice_pipe_1.SlicePipe,
-                number_pipe_1.DecimalPipe,
-                number_pipe_1.PercentPipe,
-                number_pipe_1.CurrencyPipe,
-                date_pipe_1.DatePipe,
-                replace_pipe_1.ReplacePipe
-            ]));
         }
     }
 });

@@ -50,8 +50,6 @@ System.register(['angular2/core', 'angular2/src/facade/lang', './control_contain
              * @Component({
              *   selector: 'my-app',
              *   directives: [FORM_DIRECTIVES],
-             * })
-             * @View({
              *   template: `
              *     <div>
              *       <h2>Angular2 Control &amp; ControlGroup Example</h2>

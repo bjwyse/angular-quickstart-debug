@@ -1,4 +1,4 @@
-System.register(['./platform_location', 'angular2/src/facade/lang', 'angular2/src/router/browser_platform_location', 'angular2/core'], function(exports_1, context_1) {
+System.register(['./platform_location', 'angular2/src/facade/lang', 'angular2/src/router/location/browser_platform_location', 'angular2/core'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var platform_location_1, lang_1, browser_platform_location_1, core_1;

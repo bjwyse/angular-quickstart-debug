@@ -1,7 +1,7 @@
-System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', './type_literal', './forward_ref'], function(exports_1, context_1) {
+System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', './forward_ref'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var lang_1, exceptions_1, type_literal_1, forward_ref_1;
+    var lang_1, exceptions_1, forward_ref_1;
     var Key, KeyRegistry, _globalKeyRegistry;
     return {
         setters:[
@@ -10,12 +10,6 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
             },
             function (exceptions_1_1) {
                 exceptions_1 = exceptions_1_1;
-            },
-            function (type_literal_1_1) {
-                type_literal_1 = type_literal_1_1;
-                exports_1({
-                    "TypeLiteral": type_literal_1_1["TypeLiteral"]
-                });
             },
             function (forward_ref_1_1) {
                 forward_ref_1 = forward_ref_1_1;
@@ -78,12 +72,6 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                 KeyRegistry.prototype.get = function (token) {
                     if (token instanceof Key)
                         return token;
-                    // TODO: workaround for https://github.com/Microsoft/TypeScript/issues/3123
-                    var theToken = token;
-                    if (token instanceof type_literal_1.TypeLiteral) {
-                        theToken = token.type;
-                    }
-                    token = theToken;
                     if (this._allKeys.has(token)) {
                         return this._allKeys.get(token);
                     }

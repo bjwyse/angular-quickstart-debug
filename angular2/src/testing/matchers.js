@@ -1,7 +1,7 @@
-System.register(['angular2/src/platform/dom/dom_adapter', 'angular2/src/facade/lang'], function(exports_1, context_1) {
+System.register(['angular2/src/platform/dom/dom_adapter', 'angular2/src/facade/lang', 'angular2/src/facade/collection'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var dom_adapter_1, lang_1;
+    var dom_adapter_1, lang_1, collection_1;
     var _global, expect;
     function elementText(n) {
         var hasNodes = function (n) {
@@ -32,6 +32,9 @@ System.register(['angular2/src/platform/dom/dom_adapter', 'angular2/src/facade/l
             },
             function (lang_1_1) {
                 lang_1 = lang_1_1;
+            },
+            function (collection_1_1) {
+                collection_1 = collection_1_1;
             }],
         execute: function() {
             _global = (typeof window === 'undefined' ? lang_1.global : window);
@@ -176,6 +179,19 @@ System.register(['angular2/src/platform/dom/dom_adapter', 'angular2/src/facade/l
                                 }
                             }
                         };
+                    },
+                    toMatchPattern: function () {
+                        return { compare: buildError(false), negativeCompare: buildError(true) };
+                        function buildError(isNot) {
+                            return function (actual, regex) {
+                                return {
+                                    pass: regex.test(actual) == !isNot,
+                                    get message() {
+                                        return "Expected " + actual + " " + (isNot ? 'not ' : '') + "to match " + regex.toString();
+                                    }
+                                };
+                            };
+                        }
                     },
                     toImplement: function () {
                         return {

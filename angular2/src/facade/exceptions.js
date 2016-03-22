@@ -1,4 +1,4 @@
-System.register(['./exception_handler'], function(exports_1, context_1) {
+System.register(['./base_wrapped_exception', './exception_handler'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -6,7 +6,7 @@ System.register(['./exception_handler'], function(exports_1, context_1) {
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    var exception_handler_1;
+    var base_wrapped_exception_1, exception_handler_1;
     var BaseException, WrappedException;
     function makeTypeError(message) {
         return new TypeError(message);
@@ -18,6 +18,9 @@ System.register(['./exception_handler'], function(exports_1, context_1) {
     exports_1("unimplemented", unimplemented);
     return {
         setters:[
+            function (base_wrapped_exception_1_1) {
+                base_wrapped_exception_1 = base_wrapped_exception_1_1;
+            },
             function (exception_handler_1_1) {
                 exception_handler_1 = exception_handler_1_1;
                 exports_1({
@@ -82,7 +85,7 @@ System.register(['./exception_handler'], function(exports_1, context_1) {
                 });
                 WrappedException.prototype.toString = function () { return this.message; };
                 return WrappedException;
-            }(Error));
+            }(base_wrapped_exception_1.BaseWrappedException));
             exports_1("WrappedException", WrappedException);
         }
     }

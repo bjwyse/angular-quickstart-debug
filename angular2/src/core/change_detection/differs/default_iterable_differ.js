@@ -123,7 +123,6 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                     }
                 };
                 DefaultIterableDiffer.prototype.onDestroy = function () { };
-                // todo(vicb): optim for UnmodifiableListView (frozen arrays)
                 DefaultIterableDiffer.prototype.check = function (collection) {
                     var _this = this;
                     this._reset();
@@ -133,24 +132,27 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                     var item;
                     var itemTrackBy;
                     if (lang_2.isArray(collection)) {
-                        var list = collection;
-                        this._length = collection.length;
-                        for (index = 0; index < this._length; index++) {
-                            item = list[index];
-                            itemTrackBy = this._trackByFn(index, item);
-                            if (record === null || !lang_2.looseIdentical(record.trackById, itemTrackBy)) {
-                                record = this._mismatch(record, item, itemTrackBy, index);
-                                mayBeDirty = true;
-                            }
-                            else {
-                                if (mayBeDirty) {
-                                    // TODO(misko): can we limit this to duplicates only?
-                                    record = this._verifyReinsertion(record, item, itemTrackBy, index);
+                        if (collection !== this._collection || !collection_1.ListWrapper.isImmutable(collection)) {
+                            var list = collection;
+                            this._length = collection.length;
+                            for (index = 0; index < this._length; index++) {
+                                item = list[index];
+                                itemTrackBy = this._trackByFn(index, item);
+                                if (record === null || !lang_2.looseIdentical(record.trackById, itemTrackBy)) {
+                                    record = this._mismatch(record, item, itemTrackBy, index);
+                                    mayBeDirty = true;
                                 }
-                                if (!lang_2.looseIdentical(record.item, item))
-                                    this._addIdentityChange(record, item);
+                                else {
+                                    if (mayBeDirty) {
+                                        // TODO(misko): can we limit this to duplicates only?
+                                        record = this._verifyReinsertion(record, item, itemTrackBy, index);
+                                    }
+                                    if (!lang_2.looseIdentical(record.item, item))
+                                        this._addIdentityChange(record, item);
+                                }
+                                record = record._next;
                             }
-                            record = record._next;
+                            this._truncate(record);
                         }
                     }
                     else {
@@ -173,8 +175,8 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                             index++;
                         });
                         this._length = index;
+                        this._truncate(record);
                     }
-                    this._truncate(record);
                     this._collection = collection;
                     return this.isDirty;
                 };

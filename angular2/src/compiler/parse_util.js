@@ -1,7 +1,7 @@
 System.register([], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var ParseLocation, ParseSourceFile, ParseError, ParseSourceSpan;
+    var ParseLocation, ParseSourceFile, ParseSourceSpan, ParseError;
     return {
         setters:[],
         execute: function() {
@@ -24,14 +24,25 @@ System.register([], function(exports_1, context_1) {
                 return ParseSourceFile;
             }());
             exports_1("ParseSourceFile", ParseSourceFile);
+            ParseSourceSpan = (function () {
+                function ParseSourceSpan(start, end) {
+                    this.start = start;
+                    this.end = end;
+                }
+                ParseSourceSpan.prototype.toString = function () {
+                    return this.start.file.content.substring(this.start.offset, this.end.offset);
+                };
+                return ParseSourceSpan;
+            }());
+            exports_1("ParseSourceSpan", ParseSourceSpan);
             ParseError = (function () {
-                function ParseError(location, msg) {
-                    this.location = location;
+                function ParseError(span, msg) {
+                    this.span = span;
                     this.msg = msg;
                 }
                 ParseError.prototype.toString = function () {
-                    var source = this.location.file.content;
-                    var ctxStart = this.location.offset;
+                    var source = this.span.start.file.content;
+                    var ctxStart = this.span.start.offset;
                     if (ctxStart > source.length - 1) {
                         ctxStart = source.length - 1;
                     }
@@ -58,24 +69,13 @@ System.register([], function(exports_1, context_1) {
                             }
                         }
                     }
-                    var context = source.substring(ctxStart, this.location.offset) + '[ERROR ->]' +
-                        source.substring(this.location.offset, ctxEnd + 1);
-                    return this.msg + " (\"" + context + "\"): " + this.location;
+                    var context = source.substring(ctxStart, this.span.start.offset) + '[ERROR ->]' +
+                        source.substring(this.span.start.offset, ctxEnd + 1);
+                    return this.msg + " (\"" + context + "\"): " + this.span.start;
                 };
                 return ParseError;
             }());
             exports_1("ParseError", ParseError);
-            ParseSourceSpan = (function () {
-                function ParseSourceSpan(start, end) {
-                    this.start = start;
-                    this.end = end;
-                }
-                ParseSourceSpan.prototype.toString = function () {
-                    return this.start.file.content.substring(this.start.offset, this.end.offset);
-                };
-                return ParseSourceSpan;
-            }());
-            exports_1("ParseSourceSpan", ParseSourceSpan);
         }
     }
 });

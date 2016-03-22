@@ -3,7 +3,7 @@
  * @description
  * Maps application URLs into application states, to support deep-linking and navigation.
  */
-System.register(['./src/router/router', './src/router/router_outlet', './src/router/router_link', './src/router/instruction', './src/router/platform_location', './src/router/route_registry', './src/router/location_strategy', './src/router/hash_location_strategy', './src/router/path_location_strategy', './src/router/location', './src/router/route_config_decorator', './src/router/lifecycle_annotations', 'angular2/core', 'angular2/src/router/router_providers_common', 'angular2/src/router/router_providers', './src/facade/lang'], function(exports_1, context_1) {
+System.register(['./src/router/router', './src/router/directives/router_outlet', './src/router/directives/router_link', './src/router/instruction', './src/router/location/platform_location', './src/router/route_registry', './src/router/location/location_strategy', './src/router/location/hash_location_strategy', './src/router/location/path_location_strategy', './src/router/location/location', './src/router/route_config/route_config_decorator', './src/router/lifecycle/lifecycle_annotations', 'angular2/core', 'angular2/src/router/router_providers_common', 'angular2/src/router/router_providers', './src/facade/lang'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var router_outlet_1, router_link_1, lang_1;

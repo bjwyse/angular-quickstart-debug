@@ -9,6 +9,9 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/promise', 'ang
     function _executeValidators(control, validators) {
         return validators.map(function (v) { return v(control); });
     }
+    function _executeAsyncValidators(control, validators) {
+        return validators.map(function (v) { return v(control); });
+    }
     function _mergeErrors(arrayOfErrors) {
         var res = arrayOfErrors.reduce(function (res, errors) {
             return lang_1.isPresent(errors) ? collection_1.StringMapWrapper.merge(res, errors) : res;
@@ -139,7 +142,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/promise', 'ang
                     if (presentValidators.length == 0)
                         return null;
                     return function (control) {
-                        var promises = _executeValidators(control, presentValidators).map(_convertToPromise);
+                        var promises = _executeAsyncValidators(control, presentValidators).map(_convertToPromise);
                         return promise_1.PromiseWrapper.all(promises).then(_mergeErrors);
                     };
                 };

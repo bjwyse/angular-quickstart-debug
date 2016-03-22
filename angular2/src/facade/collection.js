@@ -163,6 +163,12 @@ System.register(['angular2/src/facade/lang'], function(exports_1, context_1) {
                 };
                 StringMapWrapper.set = function (map, key, value) { map[key] = value; };
                 StringMapWrapper.keys = function (map) { return Object.keys(map); };
+                StringMapWrapper.values = function (map) {
+                    return Object.keys(map).reduce(function (r, a) {
+                        r.push(map[a]);
+                        return r;
+                    }, []);
+                };
                 StringMapWrapper.isEmpty = function (map) {
                     for (var prop in map) {
                         return false;
@@ -217,6 +223,11 @@ System.register(['angular2/src/facade/lang'], function(exports_1, context_1) {
                 ListWrapper.createFixedSize = function (size) { return new Array(size); };
                 ListWrapper.createGrowableSize = function (size) { return new Array(size); };
                 ListWrapper.clone = function (array) { return array.slice(0); };
+                ListWrapper.createImmutable = function (array) {
+                    var result = ListWrapper.clone(array);
+                    Object.seal(result);
+                    return result;
+                };
                 ListWrapper.forEachWithIndex = function (array, fn) {
                     for (var i = 0; i < array.length; i++) {
                         fn(array[i], i);
@@ -313,6 +324,7 @@ System.register(['angular2/src/facade/lang'], function(exports_1, context_1) {
                     }
                     return solution;
                 };
+                ListWrapper.isImmutable = function (list) { return Object.isSealed(list); };
                 return ListWrapper;
             }());
             exports_1("ListWrapper", ListWrapper);

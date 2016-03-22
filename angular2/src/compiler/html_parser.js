@@ -52,12 +52,12 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
         execute: function() {
             HtmlTreeError = (function (_super) {
                 __extends(HtmlTreeError, _super);
-                function HtmlTreeError(elementName, location, msg) {
-                    _super.call(this, location, msg);
+                function HtmlTreeError(elementName, span, msg) {
+                    _super.call(this, span, msg);
                     this.elementName = elementName;
                 }
-                HtmlTreeError.create = function (elementName, location, msg) {
-                    return new HtmlTreeError(elementName, location, msg);
+                HtmlTreeError.create = function (elementName, span, msg) {
+                    return new HtmlTreeError(elementName, span, msg);
                 };
                 return HtmlTreeError;
             }(parse_util_1.ParseError));
@@ -143,9 +143,11 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                     this._consumeText(this._advance());
                     this._advanceIf(html_lexer_1.HtmlTokenType.CDATA_END);
                 };
-                TreeBuilder.prototype._consumeComment = function (startToken) {
-                    this._advanceIf(html_lexer_1.HtmlTokenType.RAW_TEXT);
+                TreeBuilder.prototype._consumeComment = function (token) {
+                    var text = this._advanceIf(html_lexer_1.HtmlTokenType.RAW_TEXT);
                     this._advanceIf(html_lexer_1.HtmlTokenType.COMMENT_END);
+                    var value = lang_1.isPresent(text) ? text.parts[0].trim() : null;
+                    this._addToParent(new html_ast_1.HtmlCommentAst(value, token.sourceSpan));
                 };
                 TreeBuilder.prototype._consumeText = function (token) {
                     var text = token.parts[0];
@@ -183,7 +185,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                         this._advance();
                         selfClosing = true;
                         if (html_tags_1.getNsPrefix(fullName) == null && !html_tags_1.getHtmlTagDefinition(fullName).isVoid) {
-                            this.errors.push(HtmlTreeError.create(fullName, startTagToken.sourceSpan.start, "Only void and foreign elements can be self closed \"" + startTagToken.parts[1] + "\""));
+                            this.errors.push(HtmlTreeError.create(fullName, startTagToken.sourceSpan, "Only void and foreign elements can be self closed \"" + startTagToken.parts[1] + "\""));
                         }
                     }
                     else if (this.peek.type === html_lexer_1.HtmlTokenType.TAG_OPEN_END) {
@@ -220,10 +222,10 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                 TreeBuilder.prototype._consumeEndTag = function (endTagToken) {
                     var fullName = getElementFullName(endTagToken.parts[0], endTagToken.parts[1], this._getParentElement());
                     if (html_tags_1.getHtmlTagDefinition(fullName).isVoid) {
-                        this.errors.push(HtmlTreeError.create(fullName, endTagToken.sourceSpan.start, "Void elements do not have end tags \"" + endTagToken.parts[1] + "\""));
+                        this.errors.push(HtmlTreeError.create(fullName, endTagToken.sourceSpan, "Void elements do not have end tags \"" + endTagToken.parts[1] + "\""));
                     }
                     else if (!this._popElement(fullName)) {
-                        this.errors.push(HtmlTreeError.create(fullName, endTagToken.sourceSpan.start, "Unexpected closing tag \"" + endTagToken.parts[1] + "\""));
+                        this.errors.push(HtmlTreeError.create(fullName, endTagToken.sourceSpan, "Unexpected closing tag \"" + endTagToken.parts[1] + "\""));
                     }
                 };
                 TreeBuilder.prototype._popElement = function (fullName) {

@@ -49,6 +49,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                         var testabilities = registry.getAllTestabilities();
                         return testabilities.map(function (testability) { return new PublicTestability(testability); });
                     };
+                    lang_1.global.getAllAngularRootElements = function () { return registry.getAllRootElements(); };
                     var whenAllStable = function (callback) {
                         var testabilities = lang_1.global.getAllAngularTestabilities();
                         var count = testabilities.length;

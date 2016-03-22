@@ -44,7 +44,8 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
     }
     exports_1("composeValidators", composeValidators);
     function composeAsyncValidators(validators) {
-        return lang_1.isPresent(validators) ? validators_1.Validators.composeAsync(validators.map(normalize_validator_1.normalizeValidator)) : null;
+        return lang_1.isPresent(validators) ? validators_1.Validators.composeAsync(validators.map(normalize_validator_1.normalizeAsyncValidator)) :
+            null;
     }
     exports_1("composeAsyncValidators", composeAsyncValidators);
     function isPropertyUpdated(changes, viewModel) {

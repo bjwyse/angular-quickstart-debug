@@ -1,7 +1,7 @@
-System.register(['angular2/src/facade/lang', './ng_class', './ng_for', './ng_if', './ng_style', './ng_switch'], function(exports_1, context_1) {
+System.register(['angular2/src/facade/lang', './ng_class', './ng_for', './ng_if', './ng_style', './ng_switch', './ng_plural'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var lang_1, ng_class_1, ng_for_1, ng_if_1, ng_style_1, ng_switch_1;
+    var lang_1, ng_class_1, ng_for_1, ng_if_1, ng_style_1, ng_switch_1, ng_plural_1;
     var CORE_DIRECTIVES;
     return {
         setters:[
@@ -22,6 +22,9 @@ System.register(['angular2/src/facade/lang', './ng_class', './ng_for', './ng_if'
             },
             function (ng_switch_1_1) {
                 ng_switch_1 = ng_switch_1_1;
+            },
+            function (ng_plural_1_1) {
+                ng_plural_1 = ng_plural_1_1;
             }],
         execute: function() {
             /**
@@ -29,7 +32,7 @@ System.register(['angular2/src/facade/lang', './ng_class', './ng_for', './ng_if'
              * application.
              *
              * This collection can be used to quickly enumerate all the built-in directives in the `directives`
-             * property of the `@View` annotation.
+             * property of the `@Component` annotation.
              *
              * ### Example ([live demo](http://plnkr.co/edit/yakGwpCdUkg0qfzX5m8g?p=preview))
              *
@@ -64,7 +67,17 @@ System.register(['angular2/src/facade/lang', './ng_class', './ng_for', './ng_if'
              * }
              * ```
              */
-            exports_1("CORE_DIRECTIVES", CORE_DIRECTIVES = lang_1.CONST_EXPR([ng_class_1.NgClass, ng_for_1.NgFor, ng_if_1.NgIf, ng_style_1.NgStyle, ng_switch_1.NgSwitch, ng_switch_1.NgSwitchWhen, ng_switch_1.NgSwitchDefault]));
+            exports_1("CORE_DIRECTIVES", CORE_DIRECTIVES = lang_1.CONST_EXPR([
+                ng_class_1.NgClass,
+                ng_for_1.NgFor,
+                ng_if_1.NgIf,
+                ng_style_1.NgStyle,
+                ng_switch_1.NgSwitch,
+                ng_switch_1.NgSwitchWhen,
+                ng_switch_1.NgSwitchDefault,
+                ng_plural_1.NgPlural,
+                ng_plural_1.NgPluralCase
+            ]));
         }
     }
 });

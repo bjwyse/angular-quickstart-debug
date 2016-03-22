@@ -1,12 +1,12 @@
-System.register(['angular2/router', 'angular2/core', 'angular2/src/facade/lang', './browser_platform_location', './platform_location'], function(exports_1, context_1) {
+System.register(['./router_providers_common', 'angular2/core', 'angular2/src/facade/lang', './location/browser_platform_location', './location/platform_location'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var router_1, core_1, lang_1, browser_platform_location_1, platform_location_1;
+    var router_providers_common_1, core_1, lang_1, browser_platform_location_1, platform_location_1;
     var ROUTER_PROVIDERS, ROUTER_BINDINGS;
     return {
         setters:[
-            function (router_1_1) {
-                router_1 = router_1_1;
+            function (router_providers_common_1_1) {
+                router_providers_common_1 = router_providers_common_1_1;
             },
             function (core_1_1) {
                 core_1 = core_1_1;
@@ -46,7 +46,7 @@ System.register(['angular2/router', 'angular2/core', 'angular2/src/facade/lang',
              * ```
              */
             exports_1("ROUTER_PROVIDERS", ROUTER_PROVIDERS = lang_1.CONST_EXPR([
-                router_1.ROUTER_PROVIDERS_COMMON,
+                router_providers_common_1.ROUTER_PROVIDERS_COMMON,
                 lang_1.CONST_EXPR(new core_1.Provider(platform_location_1.PlatformLocation, { useClass: browser_platform_location_1.BrowserPlatformLocation })),
             ]));
             /**

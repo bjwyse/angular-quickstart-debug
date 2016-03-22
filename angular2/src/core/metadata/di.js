@@ -105,7 +105,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/core/di', 'angular2/s
              *    <ul>
              *      <li *ngFor="#pane of panes">{{pane.title}}</li>
              *    </ul>
-             *    <content></content>
+             *    <ng-content></ng-content>
              *  `
              * })
              * class Tabs {
@@ -303,8 +303,8 @@ System.register(['angular2/src/facade/lang', 'angular2/src/core/di', 'angular2/s
              * ### Example ([live demo](http://plnkr.co/edit/eNsFHDf7YjyM6IzKxM1j?p=preview))
              *
              * ```javascript
-             * @Component({...})
-             * @View({
+             * @Component({
+             *   ...,
              *   template: `
              *     <item> a </item>
              *     <item> b </item>

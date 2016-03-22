@@ -108,33 +108,31 @@ System.register(['angular2/src/facade/lang', 'angular2/core', 'angular2/src/faca
                             v = v.split(' ');
                         }
                         this._rawClass = v;
+                        this._iterableDiffer = null;
+                        this._keyValueDiffer = null;
                         if (lang_1.isPresent(v)) {
                             if (collection_1.isListLikeIterable(v)) {
-                                this._differ = this._iterableDiffers.find(v).create(null);
-                                this._mode = 'iterable';
+                                this._iterableDiffer = this._iterableDiffers.find(v).create(null);
                             }
                             else {
-                                this._differ = this._keyValueDiffers.find(v).create(null);
-                                this._mode = 'keyValue';
+                                this._keyValueDiffer = this._keyValueDiffers.find(v).create(null);
                             }
-                        }
-                        else {
-                            this._differ = null;
                         }
                     },
                     enumerable: true,
                     configurable: true
                 });
                 NgClass.prototype.ngDoCheck = function () {
-                    if (lang_1.isPresent(this._differ)) {
-                        var changes = this._differ.diff(this._rawClass);
+                    if (lang_1.isPresent(this._iterableDiffer)) {
+                        var changes = this._iterableDiffer.diff(this._rawClass);
                         if (lang_1.isPresent(changes)) {
-                            if (this._mode == 'iterable') {
-                                this._applyIterableChanges(changes);
-                            }
-                            else {
-                                this._applyKeyValueChanges(changes);
-                            }
+                            this._applyIterableChanges(changes);
+                        }
+                    }
+                    if (lang_1.isPresent(this._keyValueDiffer)) {
+                        var changes = this._keyValueDiffer.diff(this._rawClass);
+                        if (lang_1.isPresent(changes)) {
+                            this._applyKeyValueChanges(changes);
                         }
                     }
                 };
@@ -173,7 +171,7 @@ System.register(['angular2/src/facade/lang', 'angular2/core', 'angular2/src/faca
                         }
                         else {
                             collection_1.StringMapWrapper.forEach(rawClassVal, function (expVal, className) {
-                                if (expVal)
+                                if (lang_1.isPresent(expVal))
                                     _this._toggleClass(className, !isCleanup);
                             });
                         }

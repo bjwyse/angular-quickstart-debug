@@ -26,7 +26,9 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
         collection_1.StringMapWrapper.forEach(data, function (value, name) { entryArray.push([name, value]); });
         // We need to sort to get a defined output order
         // for tests and for caching generated artifacts...
-        collection_1.ListWrapper.sort(entryArray, function (entry1, entry2) { return lang_1.StringWrapper.compare(entry1[0], entry2[0]); });
+        collection_1.ListWrapper.sort(entryArray, function (entry1, entry2) {
+            return lang_1.StringWrapper.compare(entry1[0], entry2[0]);
+        });
         var keyValueArray = [];
         entryArray.forEach(function (entry) { keyValueArray.push([entry[0], entry[1]]); });
         return keyValueArray;

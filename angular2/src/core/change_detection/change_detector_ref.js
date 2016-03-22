@@ -1,4 +1,4 @@
-System.register(['./constants', 'angular2/src/core/di'], function(exports_1, context_1) {
+System.register(['./constants'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -6,33 +6,17 @@ System.register(['./constants', 'angular2/src/core/di'], function(exports_1, con
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata = (this && this.__metadata) || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var constants_1, di_1;
+    var constants_1;
     var ChangeDetectorRef, ChangeDetectorRef_;
     return {
         setters:[
             function (constants_1_1) {
                 constants_1 = constants_1_1;
-            },
-            function (di_1_1) {
-                di_1 = di_1_1;
             }],
         execute: function() {
             ChangeDetectorRef = (function () {
                 function ChangeDetectorRef() {
                 }
-                ChangeDetectorRef = __decorate([
-                    di_1.Injectable(), 
-                    __metadata('design:paramtypes', [])
-                ], ChangeDetectorRef);
                 return ChangeDetectorRef;
             }());
             exports_1("ChangeDetectorRef", ChangeDetectorRef);

@@ -23,6 +23,8 @@ System.register(['./change_detection/change_detection'], function(exports_1, con
                     "KeyValueDiffers": change_detection_1_1["KeyValueDiffers"],
                     "KeyValueDiffer": change_detection_1_1["KeyValueDiffer"],
                     "KeyValueDifferFactory": change_detection_1_1["KeyValueDifferFactory"],
+                    "CollectionChangeRecord": change_detection_1_1["CollectionChangeRecord"],
+                    "KeyValueChangeRecord": change_detection_1_1["KeyValueChangeRecord"],
                     "TrackByFn": change_detection_1_1["TrackByFn"]
                 });
             }],

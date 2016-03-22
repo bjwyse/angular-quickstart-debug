@@ -221,9 +221,9 @@ System.register(['angular2/core', 'angular2/src/facade/lang', 'angular2/src/faca
                         dom_adapter_1.DOM.remove(oldRoots[i]);
                     }
                     dom_adapter_1.DOM.appendChild(doc.body, rootEl);
-                    return this._injector.get(core_1.DynamicComponentLoader)
-                        .loadAsRoot(rootComponentType, "#" + rootElId, this._injector)
-                        .then(function (componentRef) { return new ComponentFixture_(componentRef); });
+                    var promise = this._injector.get(core_1.DynamicComponentLoader)
+                        .loadAsRoot(rootComponentType, "#" + rootElId, this._injector);
+                    return promise.then(function (componentRef) { return new ComponentFixture_(componentRef); });
                 };
                 TestComponentBuilder = __decorate([
                     core_1.Injectable(), 

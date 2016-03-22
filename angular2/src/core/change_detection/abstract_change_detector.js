@@ -1,7 +1,7 @@
-System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', './change_detection_util', './change_detector_ref', './exceptions', './parser/locals', './constants', '../profile/profile', './observable_facade', 'angular2/src/facade/async'], function(exports_1, context_1) {
+System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', './change_detection_util', './change_detector_ref', './exceptions', './parser/locals', './constants', '../profile/profile', 'angular2/src/facade/async'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var lang_1, collection_1, change_detection_util_1, change_detector_ref_1, exceptions_1, locals_1, constants_1, profile_1, observable_facade_1, async_1;
+    var lang_1, collection_1, change_detection_util_1, change_detector_ref_1, exceptions_1, locals_1, constants_1, profile_1, async_1;
     var _scope_check, _Context, AbstractChangeDetector;
     return {
         setters:[
@@ -28,9 +28,6 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
             },
             function (profile_1_1) {
                 profile_1 = profile_1_1;
-            },
-            function (observable_facade_1_1) {
-                observable_facade_1 = observable_facade_1_1;
             },
             function (async_1_1) {
                 async_1 = async_1_1;
@@ -153,9 +150,6 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                     this.dispatcher = dispatcher;
                     this.mode = change_detection_util_1.ChangeDetectionUtil.changeDetectionMode(this.strategy);
                     this.context = context;
-                    if (this.strategy === constants_1.ChangeDetectionStrategy.OnPushObserve) {
-                        this.observeComponent(context);
-                    }
                     this.locals = locals;
                     this.pipes = pipes;
                     this.hydrateDirectives(dispatcher);
@@ -167,10 +161,6 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                 // implementation of `dehydrateDirectives`.
                 AbstractChangeDetector.prototype.dehydrate = function () {
                     this.dehydrateDirectives(true);
-                    // This is an experimental feature. Works only in Dart.
-                    if (this.strategy === constants_1.ChangeDetectionStrategy.OnPushObserve) {
-                        this._unsubsribeFromObservables();
-                    }
                     this._unsubscribeFromOutputs();
                     this.dispatcher = null;
                     this.context = null;
@@ -226,71 +216,12 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                         c = c.parent;
                     }
                 };
-                // This is an experimental feature. Works only in Dart.
-                AbstractChangeDetector.prototype._unsubsribeFromObservables = function () {
-                    if (lang_1.isPresent(this.subscriptions)) {
-                        for (var i = 0; i < this.subscriptions.length; ++i) {
-                            var s = this.subscriptions[i];
-                            if (lang_1.isPresent(this.subscriptions[i])) {
-                                s.cancel();
-                                this.subscriptions[i] = null;
-                            }
-                        }
-                    }
-                };
                 AbstractChangeDetector.prototype._unsubscribeFromOutputs = function () {
                     if (lang_1.isPresent(this.outputSubscriptions)) {
                         for (var i = 0; i < this.outputSubscriptions.length; ++i) {
                             async_1.ObservableWrapper.dispose(this.outputSubscriptions[i]);
                             this.outputSubscriptions[i] = null;
                         }
-                    }
-                };
-                // This is an experimental feature. Works only in Dart.
-                AbstractChangeDetector.prototype.observeValue = function (value, index) {
-                    var _this = this;
-                    if (observable_facade_1.isObservable(value)) {
-                        this._createArrayToStoreObservables();
-                        if (lang_1.isBlank(this.subscriptions[index])) {
-                            this.streams[index] = value.changes;
-                            this.subscriptions[index] = value.changes.listen(function (_) { return _this.ref.markForCheck(); });
-                        }
-                        else if (this.streams[index] !== value.changes) {
-                            this.subscriptions[index].cancel();
-                            this.streams[index] = value.changes;
-                            this.subscriptions[index] = value.changes.listen(function (_) { return _this.ref.markForCheck(); });
-                        }
-                    }
-                    return value;
-                };
-                // This is an experimental feature. Works only in Dart.
-                AbstractChangeDetector.prototype.observeDirective = function (value, index) {
-                    var _this = this;
-                    if (observable_facade_1.isObservable(value)) {
-                        this._createArrayToStoreObservables();
-                        var arrayIndex = this.numberOfPropertyProtoRecords + index + 2; // +1 is component
-                        this.streams[arrayIndex] = value.changes;
-                        this.subscriptions[arrayIndex] = value.changes.listen(function (_) { return _this.ref.markForCheck(); });
-                    }
-                    return value;
-                };
-                // This is an experimental feature. Works only in Dart.
-                AbstractChangeDetector.prototype.observeComponent = function (value) {
-                    var _this = this;
-                    if (observable_facade_1.isObservable(value)) {
-                        this._createArrayToStoreObservables();
-                        var index = this.numberOfPropertyProtoRecords + 1;
-                        this.streams[index] = value.changes;
-                        this.subscriptions[index] = value.changes.listen(function (_) { return _this.ref.markForCheck(); });
-                    }
-                    return value;
-                };
-                AbstractChangeDetector.prototype._createArrayToStoreObservables = function () {
-                    if (lang_1.isBlank(this.subscriptions)) {
-                        this.subscriptions = collection_1.ListWrapper.createFixedSize(this.numberOfPropertyProtoRecords +
-                            this.directiveIndices.length + 2);
-                        this.streams = collection_1.ListWrapper.createFixedSize(this.numberOfPropertyProtoRecords +
-                            this.directiveIndices.length + 2);
                     }
                 };
                 AbstractChangeDetector.prototype.getDirectiveFor = function (directives, index) {

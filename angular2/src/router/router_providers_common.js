@@ -1,4 +1,4 @@
-System.register(['angular2/src/router/location_strategy', 'angular2/src/router/path_location_strategy', 'angular2/src/router/router', 'angular2/src/router/route_registry', 'angular2/src/router/location', 'angular2/src/facade/lang', 'angular2/core', 'angular2/src/facade/exceptions'], function(exports_1, context_1) {
+System.register(['angular2/src/router/location/location_strategy', 'angular2/src/router/location/path_location_strategy', 'angular2/src/router/router', 'angular2/src/router/route_registry', 'angular2/src/router/location/location', 'angular2/src/facade/lang', 'angular2/core', 'angular2/src/facade/exceptions'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var location_strategy_1, path_location_strategy_1, router_1, route_registry_1, location_1, lang_1, core_1, exceptions_1;

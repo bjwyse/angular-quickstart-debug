@@ -1,15 +1,15 @@
-System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', 'angular2/src/facade/collection'], function(exports_1, context_1) {
+System.register(['angular2/src/facade/lang', 'angular2/src/facade/base_wrapped_exception', 'angular2/src/facade/collection'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var lang_1, exceptions_1, collection_1;
+    var lang_1, base_wrapped_exception_1, collection_1;
     var _ArrayLogger, ExceptionHandler;
     return {
         setters:[
             function (lang_1_1) {
                 lang_1 = lang_1_1;
             },
-            function (exceptions_1_1) {
-                exceptions_1 = exceptions_1_1;
+            function (base_wrapped_exception_1_1) {
+                base_wrapped_exception_1 = base_wrapped_exception_1_1;
             },
             function (collection_1_1) {
                 collection_1 = collection_1_1;
@@ -94,7 +94,8 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                 };
                 /** @internal */
                 ExceptionHandler.prototype._extractMessage = function (exception) {
-                    return exception instanceof exceptions_1.WrappedException ? exception.wrapperMessage : exception.toString();
+                    return exception instanceof base_wrapped_exception_1.BaseWrappedException ? exception.wrapperMessage :
+                        exception.toString();
                 };
                 /** @internal */
                 ExceptionHandler.prototype._longStackTrace = function (stackTrace) {
@@ -104,7 +105,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                 /** @internal */
                 ExceptionHandler.prototype._findContext = function (exception) {
                     try {
-                        if (!(exception instanceof exceptions_1.WrappedException))
+                        if (!(exception instanceof base_wrapped_exception_1.BaseWrappedException))
                             return null;
                         return lang_1.isPresent(exception.context) ? exception.context :
                             this._findContext(exception.originalException);
@@ -116,23 +117,23 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                 };
                 /** @internal */
                 ExceptionHandler.prototype._findOriginalException = function (exception) {
-                    if (!(exception instanceof exceptions_1.WrappedException))
+                    if (!(exception instanceof base_wrapped_exception_1.BaseWrappedException))
                         return null;
                     var e = exception.originalException;
-                    while (e instanceof exceptions_1.WrappedException && lang_1.isPresent(e.originalException)) {
+                    while (e instanceof base_wrapped_exception_1.BaseWrappedException && lang_1.isPresent(e.originalException)) {
                         e = e.originalException;
                     }
                     return e;
                 };
                 /** @internal */
                 ExceptionHandler.prototype._findOriginalStack = function (exception) {
-                    if (!(exception instanceof exceptions_1.WrappedException))
+                    if (!(exception instanceof base_wrapped_exception_1.BaseWrappedException))
                         return null;
                     var e = exception;
                     var stack = exception.originalStack;
-                    while (e instanceof exceptions_1.WrappedException && lang_1.isPresent(e.originalException)) {
+                    while (e instanceof base_wrapped_exception_1.BaseWrappedException && lang_1.isPresent(e.originalException)) {
                         e = e.originalException;
-                        if (e instanceof exceptions_1.WrappedException && lang_1.isPresent(e.originalException)) {
+                        if (e instanceof base_wrapped_exception_1.BaseWrappedException && lang_1.isPresent(e.originalException)) {
                             stack = e.originalStack;
                         }
                     }

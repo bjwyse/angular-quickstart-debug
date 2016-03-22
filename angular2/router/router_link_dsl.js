@@ -1,4 +1,4 @@
-System.register(['angular2/compiler', 'angular2/core', 'angular2/src/router/router_link_transform', 'angular2/src/facade/lang'], function(exports_1, context_1) {
+System.register(['angular2/compiler', 'angular2/core', 'angular2/src/router/directives/router_link_transform', 'angular2/src/facade/lang'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var compiler_1, core_1, router_link_transform_1, lang_1;

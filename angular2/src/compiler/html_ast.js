@@ -2,7 +2,7 @@ System.register(['angular2/src/facade/lang'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var lang_1;
-    var HtmlTextAst, HtmlAttrAst, HtmlElementAst;
+    var HtmlTextAst, HtmlAttrAst, HtmlElementAst, HtmlCommentAst;
     function htmlVisitAll(visitor, asts, context) {
         if (context === void 0) { context = null; }
         var result = [];
@@ -51,6 +51,15 @@ System.register(['angular2/src/facade/lang'], function(exports_1, context_1) {
                 return HtmlElementAst;
             }());
             exports_1("HtmlElementAst", HtmlElementAst);
+            HtmlCommentAst = (function () {
+                function HtmlCommentAst(value, sourceSpan) {
+                    this.value = value;
+                    this.sourceSpan = sourceSpan;
+                }
+                HtmlCommentAst.prototype.visit = function (visitor, context) { return visitor.visitComment(this, context); };
+                return HtmlCommentAst;
+            }());
+            exports_1("HtmlCommentAst", HtmlCommentAst);
         }
     }
 });

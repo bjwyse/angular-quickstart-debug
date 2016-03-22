@@ -1,4 +1,4 @@
-System.register(['angular2/src/core/di', 'angular2/src/router/platform_location', 'angular2/src/web_workers/shared/client_message_broker', 'angular2/src/web_workers/shared/messaging_api', 'angular2/src/web_workers/shared/serialized_types', 'angular2/src/facade/async', 'angular2/src/facade/exceptions', 'angular2/src/web_workers/shared/serializer', 'angular2/src/web_workers/shared/message_bus', 'angular2/src/facade/collection', 'angular2/src/facade/lang', './event_deserializer'], function(exports_1, context_1) {
+System.register(['angular2/src/core/di', 'angular2/src/router/location/platform_location', 'angular2/src/web_workers/shared/client_message_broker', 'angular2/src/web_workers/shared/messaging_api', 'angular2/src/web_workers/shared/serialized_types', 'angular2/src/facade/async', 'angular2/src/facade/exceptions', 'angular2/src/web_workers/shared/serializer', 'angular2/src/web_workers/shared/message_bus', 'angular2/src/facade/collection', 'angular2/src/facade/lang', './event_deserializer'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {

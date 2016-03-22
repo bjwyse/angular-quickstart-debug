@@ -1,7 +1,7 @@
-System.register(['angular2/src/facade/lang', './codegen_facade', './proto_record', './constants', 'angular2/src/facade/exceptions'], function(exports_1, context_1) {
+System.register(['angular2/src/facade/lang', './codegen_facade', './proto_record', 'angular2/src/facade/exceptions'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var lang_1, codegen_facade_1, proto_record_1, constants_1, exceptions_1;
+    var lang_1, codegen_facade_1, proto_record_1, exceptions_1;
     var CodegenLogicUtil;
     return {
         setters:[
@@ -14,9 +14,6 @@ System.register(['angular2/src/facade/lang', './codegen_facade', './proto_record
             function (proto_record_1_1) {
                 proto_record_1 = proto_record_1_1;
             },
-            function (constants_1_1) {
-                constants_1 = constants_1_1;
-            },
             function (exceptions_1_1) {
                 exceptions_1 = exceptions_1_1;
             }],
@@ -25,11 +22,10 @@ System.register(['angular2/src/facade/lang', './codegen_facade', './proto_record
              * Class responsible for providing change detection logic for change detector classes.
              */
             CodegenLogicUtil = (function () {
-                function CodegenLogicUtil(_names, _utilName, _changeDetectorStateName, _changeDetection) {
+                function CodegenLogicUtil(_names, _utilName, _changeDetectorStateName) {
                     this._names = _names;
                     this._utilName = _utilName;
                     this._changeDetectorStateName = _changeDetectorStateName;
-                    this._changeDetection = _changeDetection;
                 }
                 /**
                  * Generates a statement which updates the local variable representing `protoRec` with the current
@@ -61,26 +57,24 @@ System.register(['angular2/src/facade/lang', './codegen_facade', './proto_record
                             rhs = codegen_facade_1.codify(protoRec.funcOrValue);
                             break;
                         case proto_record_1.RecordType.PropertyRead:
-                            rhs = this._observe(context + "." + protoRec.name, protoRec);
+                            rhs = context + "." + protoRec.name;
                             break;
                         case proto_record_1.RecordType.SafeProperty:
-                            var read = this._observe(context + "." + protoRec.name, protoRec);
-                            rhs =
-                                this._utilName + ".isValueBlank(" + context + ") ? null : " + this._observe(read, protoRec);
+                            var read = context + "." + protoRec.name;
+                            rhs = this._utilName + ".isValueBlank(" + context + ") ? null : " + read;
                             break;
                         case proto_record_1.RecordType.PropertyWrite:
                             rhs = context + "." + protoRec.name + " = " + getLocalName(protoRec.args[0]);
                             break;
                         case proto_record_1.RecordType.Local:
-                            rhs = this._observe(localsAccessor + ".get(" + codegen_facade_1.rawString(protoRec.name) + ")", protoRec);
+                            rhs = localsAccessor + ".get(" + codegen_facade_1.rawString(protoRec.name) + ")";
                             break;
                         case proto_record_1.RecordType.InvokeMethod:
-                            rhs = this._observe(context + "." + protoRec.name + "(" + argString + ")", protoRec);
+                            rhs = context + "." + protoRec.name + "(" + argString + ")";
                             break;
                         case proto_record_1.RecordType.SafeMethodInvoke:
                             var invoke = context + "." + protoRec.name + "(" + argString + ")";
-                            rhs =
-                                this._utilName + ".isValueBlank(" + context + ") ? null : " + this._observe(invoke, protoRec);
+                            rhs = this._utilName + ".isValueBlank(" + context + ") ? null : " + invoke;
                             break;
                         case proto_record_1.RecordType.InvokeClosure:
                             rhs = context + "(" + argString + ")";
@@ -95,7 +89,7 @@ System.register(['angular2/src/facade/lang', './codegen_facade', './proto_record
                             rhs = this._genInterpolation(protoRec);
                             break;
                         case proto_record_1.RecordType.KeyedRead:
-                            rhs = this._observe(context + "[" + getLocalName(protoRec.args[0]) + "]", protoRec);
+                            rhs = context + "[" + getLocalName(protoRec.args[0]) + "]";
                             break;
                         case proto_record_1.RecordType.KeyedWrite:
                             rhs = context + "[" + getLocalName(protoRec.args[0]) + "] = " + getLocalName(protoRec.args[1]);
@@ -107,16 +101,6 @@ System.register(['angular2/src/facade/lang', './codegen_facade', './proto_record
                             throw new exceptions_1.BaseException("Unknown operation " + protoRec.mode);
                     }
                     return getLocalName(protoRec.selfIndex) + " = " + rhs + ";";
-                };
-                /** @internal */
-                CodegenLogicUtil.prototype._observe = function (exp, rec) {
-                    // This is an experimental feature. Works only in Dart.
-                    if (this._changeDetection === constants_1.ChangeDetectionStrategy.OnPushObserve) {
-                        return "this.observeValue(" + exp + ", " + rec.selfIndex + ")";
-                    }
-                    else {
-                        return exp;
-                    }
                 };
                 CodegenLogicUtil.prototype.genPropertyBindingTargets = function (propertyBindingTargets, genDebugInfo) {
                     var _this = this;
@@ -196,16 +180,7 @@ System.register(['angular2/src/facade/lang', './codegen_facade', './proto_record
                         return "(function(event) { return this.handleEvent('" + eventName + "', " + boundElementIndex + ", event); }).bind(this)";
                     }
                 };
-                CodegenLogicUtil.prototype._genReadDirective = function (index) {
-                    var directiveExpr = "this.getDirectiveFor(directives, " + index + ")";
-                    // This is an experimental feature. Works only in Dart.
-                    if (this._changeDetection === constants_1.ChangeDetectionStrategy.OnPushObserve) {
-                        return "this.observeDirective(" + directiveExpr + ", " + index + ")";
-                    }
-                    else {
-                        return directiveExpr;
-                    }
-                };
+                CodegenLogicUtil.prototype._genReadDirective = function (index) { return "this.getDirectiveFor(directives, " + index + ")"; };
                 CodegenLogicUtil.prototype.genHydrateDetectors = function (directiveRecords) {
                     var res = [];
                     for (var i = 0; i < directiveRecords.length; ++i) {

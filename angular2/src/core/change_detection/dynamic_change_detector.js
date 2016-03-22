@@ -118,12 +118,6 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                     var _this = this;
                     this.values[0] = this.context;
                     this.dispatcher = dispatcher;
-                    if (this.strategy === constants_1.ChangeDetectionStrategy.OnPushObserve) {
-                        for (var i = 0; i < this.directiveIndices.length; ++i) {
-                            var index = this.directiveIndices[i];
-                            _super.prototype.observeDirective.call(this, this._getDirectiveFor(index), i);
-                        }
-                    }
                     this.outputSubscriptions = [];
                     for (var i = 0; i < this._directiveRecords.length; ++i) {
                         var r = this._directiveRecords[i];
@@ -288,9 +282,6 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                         return null;
                     }
                     var currValue = this._calculateCurrValue(proto, values, locals);
-                    if (this.strategy === constants_1.ChangeDetectionStrategy.OnPushObserve) {
-                        _super.prototype.observeValue.call(this, currValue, proto.selfIndex);
-                    }
                     if (proto.shouldBeChecked()) {
                         var prevValue = this._readSelf(proto, values);
                         var detectedChange = throwOnChange ?

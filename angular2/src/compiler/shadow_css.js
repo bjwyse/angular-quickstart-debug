@@ -2,7 +2,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang'], 
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var collection_1, lang_1;
-    var ShadowCss, _cssContentNextSelectorRe, _cssContentRuleRe, _cssContentUnscopedRuleRe, _polyfillHost, _polyfillHostContext, _parenSuffix, _cssColonHostRe, _cssColonHostContextRe, _polyfillHostNoCombinator, _shadowDOMSelectorsRe, _selectorReSuffix, _polyfillHostRe, _colonHostRe, _colonHostContextRe, _commentRe, _ruleRe, _curlyRe, OPEN_CURLY, CLOSE_CURLY, BLOCK_PLACEHOLDER, CssRule, StringWithEscapedBlocks;
+    var ShadowCss, _cssContentNextSelectorRe, _cssContentRuleRe, _cssContentUnscopedRuleRe, _polyfillHost, _polyfillHostContext, _parenSuffix, _cssColonHostRe, _cssColonHostContextRe, _polyfillHostNoCombinator, _shadowDOMSelectorsRe, _shadowDeepSelectors, _selectorReSuffix, _polyfillHostRe, _colonHostRe, _colonHostContextRe, _commentRe, _ruleRe, _curlyRe, OPEN_CURLY, CLOSE_CURLY, BLOCK_PLACEHOLDER, CssRule, StringWithEscapedBlocks;
     function stripComments(input) {
         return lang_1.StringWrapper.replaceAllMapped(input, _commentRe, function (_) { return ''; });
     }
@@ -387,14 +387,16 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang'], 
                 ShadowCss.prototype._scopeSelector = function (selector, scopeSelector, hostSelector, strict) {
                     var r = [], parts = selector.split(',');
                     for (var i = 0; i < parts.length; i++) {
-                        var p = parts[i];
-                        p = p.trim();
-                        if (this._selectorNeedsScoping(p, scopeSelector)) {
-                            p = strict && !lang_1.StringWrapper.contains(p, _polyfillHostNoCombinator) ?
-                                this._applyStrictSelectorScope(p, scopeSelector) :
-                                this._applySelectorScope(p, scopeSelector, hostSelector);
+                        var p = parts[i].trim();
+                        var deepParts = lang_1.StringWrapper.split(p, _shadowDeepSelectors);
+                        var shallowPart = deepParts[0];
+                        if (this._selectorNeedsScoping(shallowPart, scopeSelector)) {
+                            deepParts[0] = strict && !lang_1.StringWrapper.contains(shallowPart, _polyfillHostNoCombinator) ?
+                                this._applyStrictSelectorScope(shallowPart, scopeSelector) :
+                                this._applySelectorScope(shallowPart, scopeSelector, hostSelector);
                         }
-                        r.push(p);
+                        // replace /deep/ with a space for child selectors
+                        r.push(deepParts.join(' '));
                     }
                     return r.join(', ');
                 };
@@ -471,16 +473,15 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang'], 
             _cssColonHostContextRe = lang_1.RegExpWrapper.create('(' + _polyfillHostContext + _parenSuffix, 'im');
             _polyfillHostNoCombinator = _polyfillHost + '-no-combinator';
             _shadowDOMSelectorsRe = [
-                />>>/g,
                 /::shadow/g,
                 /::content/g,
                 // Deprecated selectors
                 // TODO(vicb): see https://github.com/angular/clang-format/issues/16
                 // clang-format off
-                /\/deep\//g,
                 /\/shadow-deep\//g,
                 /\/shadow\//g,
             ];
+            _shadowDeepSelectors = /(?:>>>)|(?:\/deep\/)/g;
             _selectorReSuffix = '([>\\s~+\[.,{:][\\s\\S]*)?$';
             _polyfillHostRe = lang_1.RegExpWrapper.create(_polyfillHost, 'im');
             _colonHostRe = /:host/gim;

@@ -1,4 +1,4 @@
-System.register(['angular2/src/facade/collection', 'angular2/src/facade/exceptions', 'angular2/src/core/di', 'angular2/src/facade/lang'], function(exports_1, context_1) {
+System.register(['angular2/src/facade/collection', 'angular2/src/facade/exceptions', 'angular2/src/facade/lang'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -6,16 +6,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/exceptio
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata = (this && this.__metadata) || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var collection_1, exceptions_1, di_1, lang_1;
+    var collection_1, exceptions_1, lang_1;
     var ViewContainerRef, ViewContainerRef_;
     return {
         setters:[
@@ -24,9 +15,6 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/exceptio
             },
             function (exceptions_1_1) {
                 exceptions_1 = exceptions_1_1;
-            },
-            function (di_1_1) {
-                di_1 = di_1_1;
             },
             function (lang_1_1) {
                 lang_1 = lang_1_1;
@@ -81,10 +69,6 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/exceptio
                     configurable: true
                 });
                 ;
-                ViewContainerRef = __decorate([
-                    di_1.Injectable(), 
-                    __metadata('design:paramtypes', [])
-                ], ViewContainerRef);
                 return ViewContainerRef;
             }());
             exports_1("ViewContainerRef", ViewContainerRef);

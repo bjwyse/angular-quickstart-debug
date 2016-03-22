@@ -80,7 +80,7 @@ System.register(['angular2/core', 'angular2/src/facade/collection', 'angular2/sr
                 FormBuilder.prototype.group = function (controlsConfig, extra) {
                     if (extra === void 0) { extra = null; }
                     var controls = this._reduceControls(controlsConfig);
-                    var optionals = lang_1.isPresent(extra) ? collection_1.StringMapWrapper.get(extra, "optionals") : null;
+                    var optionals = (lang_1.isPresent(extra) ? collection_1.StringMapWrapper.get(extra, "optionals") : null);
                     var validator = lang_1.isPresent(extra) ? collection_1.StringMapWrapper.get(extra, "validator") : null;
                     var asyncValidator = lang_1.isPresent(extra) ? collection_1.StringMapWrapper.get(extra, "asyncValidator") : null;
                     return new modelModule.ControlGroup(controls, optionals, validator, asyncValidator);

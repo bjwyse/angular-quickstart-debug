@@ -48,8 +48,7 @@ System.register(['./metadata/di', './metadata/directives', './metadata/view', '.
             /**
              * Declare reusable UI building blocks for an application.
              *
-             * Each Angular component requires a single `@Component` and at least one `@View` annotation. The
-             * `@Component`
+             * Each Angular component requires a single `@Component` annotation. The `@Component`
              * annotation specifies when a component is instantiated, and which properties and hostListeners it
              * binds to.
              *
@@ -59,8 +58,6 @@ System.register(['./metadata/di', './metadata/directives', './metadata/view', '.
              * - creates all the injectable objects configured with `providers` and `viewProviders`.
              *
              * All template expressions and statements are then evaluated against the component instance.
-             *
-             * For details on the `@View` annotation, see {@link ViewMetadata}.
              *
              * ## Lifecycle hooks
              *
@@ -482,7 +479,7 @@ System.register(['./metadata/di', './metadata/directives', './metadata/view', '.
              * }
              * ```
              */
-            exports_1("View", View = decorators_1.makeDecorator(view_1.ViewMetadata, function (fn) { return fn.View = View; }));
+            View = decorators_1.makeDecorator(view_1.ViewMetadata, function (fn) { return fn.View = View; });
             /**
              * Specifies that a constant attribute value should be injected.
              *
@@ -535,7 +532,7 @@ System.register(['./metadata/di', './metadata/directives', './metadata/view', '.
              *    <ul>
              *      <li *ngFor="#pane of panes">{{pane.title}}</li>
              *    </ul>
-             *    <content></content>
+             *    <ng-content></ng-content>
              *  `
              * })
              * class Tabs {
@@ -710,8 +707,8 @@ System.register(['./metadata/di', './metadata/directives', './metadata/view', '.
              * ### Example ([live demo](http://plnkr.co/edit/eNsFHDf7YjyM6IzKxM1j?p=preview))
              *
              * ```javascript
-             * @Component({...})
-             * @View({
+             * @Component({
+             *   ...,
              *   template: `
              *     <item> a </item>
              *     <item> b </item>

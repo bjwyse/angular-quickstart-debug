@@ -1,4 +1,4 @@
-System.register(['./directives/ng_class', './directives/ng_for', './directives/ng_if', './directives/ng_style', './directives/ng_switch', './directives/observable_list_diff', './directives/core_directives'], function(exports_1, context_1) {
+System.register(['./directives/ng_class', './directives/ng_for', './directives/ng_if', './directives/ng_style', './directives/ng_switch', './directives/ng_plural', './directives/observable_list_diff', './directives/core_directives'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var exportedNames_1 = {
@@ -9,6 +9,9 @@ System.register(['./directives/ng_class', './directives/ng_for', './directives/n
         'NgSwitch': true,
         'NgSwitchWhen': true,
         'NgSwitchDefault': true,
+        'NgPlural': true,
+        'NgPluralCase': true,
+        'NgLocalization': true,
         'CORE_DIRECTIVES': true
     };
     function exportStar_1(m) {
@@ -45,6 +48,13 @@ System.register(['./directives/ng_class', './directives/ng_for', './directives/n
                     "NgSwitch": ng_switch_1_1["NgSwitch"],
                     "NgSwitchWhen": ng_switch_1_1["NgSwitchWhen"],
                     "NgSwitchDefault": ng_switch_1_1["NgSwitchDefault"]
+                });
+            },
+            function (ng_plural_1_1) {
+                exports_1({
+                    "NgPlural": ng_plural_1_1["NgPlural"],
+                    "NgPluralCase": ng_plural_1_1["NgPluralCase"],
+                    "NgLocalization": ng_plural_1_1["NgLocalization"]
                 });
             },
             function (observable_list_diff_1_1) {

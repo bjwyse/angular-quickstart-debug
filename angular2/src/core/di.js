@@ -28,7 +28,6 @@ System.register(['./di/metadata', './di/decorators', './di/forward_ref', './di/i
         'ResolvedProvider': true,
         'provide': true,
         'Key': true,
-        'TypeLiteral': true,
         'NoProviderError': true,
         'AbstractProviderError': true,
         'CyclicDependencyError': true,
@@ -88,8 +87,7 @@ System.register(['./di/metadata', './di/decorators', './di/forward_ref', './di/i
             },
             function (key_1_1) {
                 exports_1({
-                    "Key": key_1_1["Key"],
-                    "TypeLiteral": key_1_1["TypeLiteral"]
+                    "Key": key_1_1["Key"]
                 });
             },
             function (exceptions_1_1) {

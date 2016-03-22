@@ -1,4 +1,4 @@
-System.register(['angular2/src/core/di', 'angular2/src/facade/async', 'angular2/src/router/location_strategy'], function(exports_1, context_1) {
+System.register(['angular2/src/core/di', 'angular2/src/facade/async', 'angular2/src/router/location/location_strategy'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {

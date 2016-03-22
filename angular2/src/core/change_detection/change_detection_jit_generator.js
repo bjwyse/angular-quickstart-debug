@@ -66,8 +66,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                     this.eventBindings = eventBindingRecords;
                     this.directiveRecords = definition.directiveRecords;
                     this._names = new codegen_name_util_1.CodegenNameUtil(this.records, this.eventBindings, this.directiveRecords, this.changeDetectionUtilVarName);
-                    this._logic =
-                        new codegen_logic_util_1.CodegenLogicUtil(this._names, this.changeDetectionUtilVarName, this.changeDetectorStateVarName, this.changeDetectionStrategy);
+                    this._logic = new codegen_logic_util_1.CodegenLogicUtil(this._names, this.changeDetectionUtilVarName, this.changeDetectorStateVarName);
                     this.typeName = codegen_name_util_1.sanitizeName("ChangeDetector_" + this.id);
                 }
                 ChangeDetectorJITGenerator.prototype.generate = function () {

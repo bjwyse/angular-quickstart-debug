@@ -11,7 +11,7 @@ System.register(['angular2/src/facade/exceptions', 'angular2/src/facade/async', 
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var exceptions_1, async_1, collection_1, di_1;
-    var PostMessageBus, PostMessageBusSink, PostMessageBusSource, _Channel;
+    var PostMessageBusSink, PostMessageBusSource, PostMessageBus, _Channel;
     return {
         setters:[
             function (exceptions_1_1) {
@@ -27,33 +27,6 @@ System.register(['angular2/src/facade/exceptions', 'angular2/src/facade/async', 
                 di_1 = di_1_1;
             }],
         execute: function() {
-            /**
-             * A TypeScript implementation of {@link MessageBus} for communicating via JavaScript's
-             * postMessage API.
-             */
-            PostMessageBus = (function () {
-                function PostMessageBus(sink, source) {
-                    this.sink = sink;
-                    this.source = source;
-                }
-                PostMessageBus.prototype.attachToZone = function (zone) {
-                    this.source.attachToZone(zone);
-                    this.sink.attachToZone(zone);
-                };
-                PostMessageBus.prototype.initChannel = function (channel, runInZone) {
-                    if (runInZone === void 0) { runInZone = true; }
-                    this.source.initChannel(channel, runInZone);
-                    this.sink.initChannel(channel, runInZone);
-                };
-                PostMessageBus.prototype.from = function (channel) { return this.source.from(channel); };
-                PostMessageBus.prototype.to = function (channel) { return this.sink.to(channel); };
-                PostMessageBus = __decorate([
-                    di_1.Injectable(), 
-                    __metadata('design:paramtypes', [PostMessageBusSink, PostMessageBusSource])
-                ], PostMessageBus);
-                return PostMessageBus;
-            }());
-            exports_1("PostMessageBus", PostMessageBus);
             PostMessageBusSink = (function () {
                 function PostMessageBusSink(_postMessageTarget) {
                     this._postMessageTarget = _postMessageTarget;
@@ -64,7 +37,7 @@ System.register(['angular2/src/facade/exceptions', 'angular2/src/facade/async', 
                     var _this = this;
                     this._zone = zone;
                     this._zone.runOutsideAngular(function () {
-                        async_1.ObservableWrapper.subscribe(_this._zone.onEventDone, function (_) { _this._handleOnEventDone(); });
+                        async_1.ObservableWrapper.subscribe(_this._zone.onStable, function (_) { _this._handleOnEventDone(); });
                     });
                 };
                 PostMessageBusSink.prototype.initChannel = function (channel, runInZone) {
@@ -73,7 +46,7 @@ System.register(['angular2/src/facade/exceptions', 'angular2/src/facade/async', 
                     if (collection_1.StringMapWrapper.contains(this._channels, channel)) {
                         throw new exceptions_1.BaseException(channel + " has already been initialized");
                     }
-                    var emitter = new async_1.EventEmitter();
+                    var emitter = new async_1.EventEmitter(false);
                     var channelInfo = new _Channel(emitter, runInZone);
                     this._channels[channel] = channelInfo;
                     emitter.subscribe(function (data) {
@@ -122,7 +95,7 @@ System.register(['angular2/src/facade/exceptions', 'angular2/src/facade/async', 
                     if (collection_1.StringMapWrapper.contains(this._channels, channel)) {
                         throw new exceptions_1.BaseException(channel + " has already been initialized");
                     }
-                    var emitter = new async_1.EventEmitter();
+                    var emitter = new async_1.EventEmitter(false);
                     var channelInfo = new _Channel(emitter, runInZone);
                     this._channels[channel] = channelInfo;
                 };
@@ -155,6 +128,33 @@ System.register(['angular2/src/facade/exceptions', 'angular2/src/facade/async', 
                 return PostMessageBusSource;
             }());
             exports_1("PostMessageBusSource", PostMessageBusSource);
+            /**
+             * A TypeScript implementation of {@link MessageBus} for communicating via JavaScript's
+             * postMessage API.
+             */
+            PostMessageBus = (function () {
+                function PostMessageBus(sink, source) {
+                    this.sink = sink;
+                    this.source = source;
+                }
+                PostMessageBus.prototype.attachToZone = function (zone) {
+                    this.source.attachToZone(zone);
+                    this.sink.attachToZone(zone);
+                };
+                PostMessageBus.prototype.initChannel = function (channel, runInZone) {
+                    if (runInZone === void 0) { runInZone = true; }
+                    this.source.initChannel(channel, runInZone);
+                    this.sink.initChannel(channel, runInZone);
+                };
+                PostMessageBus.prototype.from = function (channel) { return this.source.from(channel); };
+                PostMessageBus.prototype.to = function (channel) { return this.sink.to(channel); };
+                PostMessageBus = __decorate([
+                    di_1.Injectable(), 
+                    __metadata('design:paramtypes', [PostMessageBusSink, PostMessageBusSource])
+                ], PostMessageBus);
+                return PostMessageBus;
+            }());
+            exports_1("PostMessageBus", PostMessageBus);
             /**
              * Helper class that wraps a channel's {@link EventEmitter} and
              * keeps track of if it should run in the zone.

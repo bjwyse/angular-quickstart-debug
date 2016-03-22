@@ -778,7 +778,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/core/di/metadata', 'a
             InputMetadata = (function () {
                 function InputMetadata(
                     /**
-                     * Name used when instantiating a component in the temlate.
+                     * Name used when instantiating a component in the template.
                      */
                     bindingPropertyName) {
                     this.bindingPropertyName = bindingPropertyName;

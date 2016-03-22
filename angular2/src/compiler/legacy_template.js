@@ -57,6 +57,7 @@ System.register(['angular2/src/core/di', 'angular2/src/facade/lang', './html_ast
                     this.rewrittenAst = [];
                     this.visitingTemplateEl = false;
                 }
+                LegacyHtmlAstTransformer.prototype.visitComment = function (ast, context) { return ast; };
                 LegacyHtmlAstTransformer.prototype.visitElement = function (ast, context) {
                     var _this = this;
                     this.visitingTemplateEl = ast.name.toLowerCase() == 'template';

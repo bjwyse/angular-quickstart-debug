@@ -363,7 +363,7 @@ System.register(['angular2/core', 'angular2/src/facade/async', 'angular2/platfor
                         '$rootScope',
                         function (injector, rootScope) {
                             ng1Injector = injector;
-                            async_1.ObservableWrapper.subscribe(ngZone.onTurnDone, function (_) { return ngZone.runOutsideAngular(function () { return rootScope.$apply(); }); });
+                            async_1.ObservableWrapper.subscribe(ngZone.onMicrotaskEmpty, function (_) { return ngZone.runOutsideAngular(function () { return rootScope.$apply(); }); });
                             ng1compilePromise =
                                 upgrade_ng1_adapter_1.UpgradeNg1ComponentAdapterBuilder.resolve(_this.downgradedComponents, injector);
                         }

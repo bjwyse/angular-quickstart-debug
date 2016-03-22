@@ -1,4 +1,4 @@
-System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 'angular2/src/facade/lang', 'angular2/src/facade/exceptions', 'angular2/core', './route_registry', './location', './route_lifecycle_reflector'], function(exports_1, context_1) {
+System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 'angular2/src/facade/lang', 'angular2/src/facade/exceptions', 'angular2/core', './route_registry', './location/location', './lifecycle/route_lifecycle_reflector'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -89,12 +89,16 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
              * The router uses the `RouteRegistry` to get an `Instruction`.
              */
             Router = (function () {
-                function Router(registry, parent, hostComponent) {
+                function Router(registry, parent, hostComponent, root) {
                     this.registry = registry;
                     this.parent = parent;
                     this.hostComponent = hostComponent;
+                    this.root = root;
                     this.navigating = false;
-                    this._currentInstruction = null;
+                    /**
+                     * The current `Instruction` for the router
+                     */
+                    this.currentInstruction = null;
                     this._currentNavigation = _resolveToTrue;
                     this._outlet = null;
                     this._auxRouters = new collection_1.Map();
@@ -121,11 +125,25 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                     if (lang_1.isPresent(outlet.name)) {
                         throw new exceptions_1.BaseException("registerPrimaryOutlet expects to be called with an unnamed outlet.");
                     }
+                    if (lang_1.isPresent(this._outlet)) {
+                        throw new exceptions_1.BaseException("Primary outlet is already registered.");
+                    }
                     this._outlet = outlet;
-                    if (lang_1.isPresent(this._currentInstruction)) {
-                        return this.commit(this._currentInstruction, false);
+                    if (lang_1.isPresent(this.currentInstruction)) {
+                        return this.commit(this.currentInstruction, false);
                     }
                     return _resolveToTrue;
+                };
+                /**
+                 * Unregister an outlet (because it was destroyed, etc).
+                 *
+                 * You probably don't need to use this unless you're writing a custom outlet implementation.
+                 */
+                Router.prototype.unregisterPrimaryOutlet = function (outlet) {
+                    if (lang_1.isPresent(outlet.name)) {
+                        throw new exceptions_1.BaseException("registerPrimaryOutlet expects to be called with an unnamed outlet.");
+                    }
+                    this._outlet = null;
                 };
                 /**
                  * Register an outlet to notified of auxiliary route changes.
@@ -141,8 +159,8 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                     this._auxRouters.set(outletName, router);
                     router._outlet = outlet;
                     var auxInstruction;
-                    if (lang_1.isPresent(this._currentInstruction) &&
-                        lang_1.isPresent(auxInstruction = this._currentInstruction.auxInstruction[outletName])) {
+                    if (lang_1.isPresent(this.currentInstruction) &&
+                        lang_1.isPresent(auxInstruction = this.currentInstruction.auxInstruction[outletName])) {
                         return router.commit(auxInstruction);
                     }
                     return _resolveToTrue;
@@ -157,8 +175,8 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                         router = router.parent;
                         instruction = instruction.child;
                     }
-                    return lang_1.isPresent(this._currentInstruction) &&
-                        this._currentInstruction.component == instruction.component;
+                    return lang_1.isPresent(this.currentInstruction) &&
+                        this.currentInstruction.component == instruction.component;
                 };
                 /**
                  * Dynamically update the routing configuration and trigger a navigation.
@@ -230,6 +248,23 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                     });
                 };
                 /** @internal */
+                Router.prototype._settleInstruction = function (instruction) {
+                    var _this = this;
+                    return instruction.resolveComponent().then(function (_) {
+                        var unsettledInstructions = [];
+                        if (lang_1.isPresent(instruction.component)) {
+                            instruction.component.reuse = false;
+                        }
+                        if (lang_1.isPresent(instruction.child)) {
+                            unsettledInstructions.push(_this._settleInstruction(instruction.child));
+                        }
+                        collection_1.StringMapWrapper.forEach(instruction.auxInstruction, function (instruction, _) {
+                            unsettledInstructions.push(_this._settleInstruction(instruction));
+                        });
+                        return async_1.PromiseWrapper.all(unsettledInstructions);
+                    });
+                };
+                /** @internal */
                 Router.prototype._navigate = function (instruction, _skipLocationChange) {
                     var _this = this;
                     return this._settleInstruction(instruction)
@@ -251,24 +286,8 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                         });
                     });
                 };
-                /** @internal */
-                Router.prototype._settleInstruction = function (instruction) {
-                    var _this = this;
-                    return instruction.resolveComponent().then(function (_) {
-                        var unsettledInstructions = [];
-                        if (lang_1.isPresent(instruction.component)) {
-                            instruction.component.reuse = false;
-                        }
-                        if (lang_1.isPresent(instruction.child)) {
-                            unsettledInstructions.push(_this._settleInstruction(instruction.child));
-                        }
-                        collection_1.StringMapWrapper.forEach(instruction.auxInstruction, function (instruction, _) {
-                            unsettledInstructions.push(_this._settleInstruction(instruction));
-                        });
-                        return async_1.PromiseWrapper.all(unsettledInstructions);
-                    });
-                };
                 Router.prototype._emitNavigationFinish = function (url) { async_1.ObservableWrapper.callEmit(this._subject, url); };
+                Router.prototype._emitNavigationFail = function (url) { async_1.ObservableWrapper.callError(this._subject, url); };
                 Router.prototype._afterPromiseFinishNavigating = function (promise) {
                     var _this = this;
                     return async_1.PromiseWrapper.catchError(promise.then(function (_) { return _this._finishNavigating(); }), function (err) {
@@ -297,7 +316,7 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                     });
                 };
                 Router.prototype._canActivate = function (nextInstruction) {
-                    return canActivateOne(nextInstruction, this._currentInstruction);
+                    return canActivateOne(nextInstruction, this.currentInstruction);
                 };
                 Router.prototype._routerCanDeactivate = function (instruction) {
                     var _this = this;
@@ -336,7 +355,7 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                 Router.prototype.commit = function (instruction, _skipLocationChange) {
                     var _this = this;
                     if (_skipLocationChange === void 0) { _skipLocationChange = false; }
-                    this._currentInstruction = instruction;
+                    this.currentInstruction = instruction;
                     var next = _resolveToTrue;
                     if (lang_1.isPresent(this._outlet) && lang_1.isPresent(instruction.component)) {
                         var componentInstruction = instruction.component;
@@ -370,8 +389,8 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                 /**
                  * Subscribe to URL updates from the router
                  */
-                Router.prototype.subscribe = function (onNext) {
-                    return async_1.ObservableWrapper.subscribe(this._subject, onNext);
+                Router.prototype.subscribe = function (onNext, onError) {
+                    return async_1.ObservableWrapper.subscribe(this._subject, onNext, onError);
                 };
                 /**
                  * Removes the contents of this router's outlet and all descendant outlets
@@ -402,10 +421,10 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                     return this.registry.recognize(url, ancestorComponents);
                 };
                 Router.prototype._getAncestorInstructions = function () {
-                    var ancestorInstructions = [this._currentInstruction];
+                    var ancestorInstructions = [this.currentInstruction];
                     var ancestorRouter = this;
                     while (lang_1.isPresent(ancestorRouter = ancestorRouter.parent)) {
-                        ancestorInstructions.unshift(ancestorRouter._currentInstruction);
+                        ancestorInstructions.unshift(ancestorRouter.currentInstruction);
                     }
                     return ancestorInstructions;
                 };
@@ -428,7 +447,7 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                 };
                 Router = __decorate([
                     core_1.Injectable(), 
-                    __metadata('design:paramtypes', [route_registry_1.RouteRegistry, Router, Object])
+                    __metadata('design:paramtypes', [route_registry_1.RouteRegistry, Router, Object, Router])
                 ], Router);
                 return Router;
             }());
@@ -438,36 +457,42 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
                 function RootRouter(registry, location, primaryComponent) {
                     var _this = this;
                     _super.call(this, registry, null, primaryComponent);
+                    this.root = this;
                     this._location = location;
                     this._locationSub = this._location.subscribe(function (change) {
                         // we call recognize ourselves
                         _this.recognize(change['url'])
                             .then(function (instruction) {
-                            _this.navigateByInstruction(instruction, lang_1.isPresent(change['pop']))
-                                .then(function (_) {
-                                // this is a popstate event; no need to change the URL
-                                if (lang_1.isPresent(change['pop']) && change['type'] != 'hashchange') {
-                                    return;
-                                }
-                                var emitPath = instruction.toUrlPath();
-                                var emitQuery = instruction.toUrlQuery();
-                                if (emitPath.length > 0 && emitPath[0] != '/') {
-                                    emitPath = '/' + emitPath;
-                                }
-                                // Because we've opted to use All hashchange events occur outside Angular.
-                                // However, apps that are migrating might have hash links that operate outside
-                                // angular to which routing must respond.
-                                // To support these cases where we respond to hashchanges and redirect as a
-                                // result, we need to replace the top item on the stack.
-                                if (change['type'] == 'hashchange') {
-                                    if (instruction.toRootUrl() != _this._location.path()) {
-                                        _this._location.replaceState(emitPath, emitQuery);
+                            if (lang_1.isPresent(instruction)) {
+                                _this.navigateByInstruction(instruction, lang_1.isPresent(change['pop']))
+                                    .then(function (_) {
+                                    // this is a popstate event; no need to change the URL
+                                    if (lang_1.isPresent(change['pop']) && change['type'] != 'hashchange') {
+                                        return;
                                     }
-                                }
-                                else {
-                                    _this._location.go(emitPath, emitQuery);
-                                }
-                            });
+                                    var emitPath = instruction.toUrlPath();
+                                    var emitQuery = instruction.toUrlQuery();
+                                    if (emitPath.length > 0 && emitPath[0] != '/') {
+                                        emitPath = '/' + emitPath;
+                                    }
+                                    // Because we've opted to use All hashchange events occur outside Angular.
+                                    // However, apps that are migrating might have hash links that operate outside
+                                    // angular to which routing must respond.
+                                    // To support these cases where we respond to hashchanges and redirect as a
+                                    // result, we need to replace the top item on the stack.
+                                    if (change['type'] == 'hashchange') {
+                                        if (instruction.toRootUrl() != _this._location.path()) {
+                                            _this._location.replaceState(emitPath, emitQuery);
+                                        }
+                                    }
+                                    else {
+                                        _this._location.go(emitPath, emitQuery);
+                                    }
+                                });
+                            }
+                            else {
+                                _this._emitNavigationFail(change['url']);
+                            }
                         });
                     });
                     this.registry.configFromComponent(primaryComponent);
@@ -504,7 +529,7 @@ System.register(['angular2/src/facade/async', 'angular2/src/facade/collection', 
             ChildRouter = (function (_super) {
                 __extends(ChildRouter, _super);
                 function ChildRouter(parent, hostComponent) {
-                    _super.call(this, parent.registry, parent, hostComponent);
+                    _super.call(this, parent.registry, parent, hostComponent, parent.root);
                     this.parent = parent;
                 }
                 ChildRouter.prototype.navigateByUrl = function (url, _skipLocationChange) {

@@ -1,34 +1,23 @@
-System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', 'angular2/src/facade/async', '../profile/profile'], function(exports_1, context_1) {
+System.register(['angular2/src/facade/async', './ng_zone_impl', '../../facade/exceptions'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var collection_1, lang_1, async_1, profile_1;
-    var NgZoneError, NgZone;
+    var async_1, ng_zone_impl_1, exceptions_1;
+    var NgZone;
     return {
         setters:[
-            function (collection_1_1) {
-                collection_1 = collection_1_1;
-            },
-            function (lang_1_1) {
-                lang_1 = lang_1_1;
-            },
             function (async_1_1) {
                 async_1 = async_1_1;
             },
-            function (profile_1_1) {
-                profile_1 = profile_1_1;
+            function (ng_zone_impl_1_1) {
+                ng_zone_impl_1 = ng_zone_impl_1_1;
+                exports_1({
+                    "NgZoneError": ng_zone_impl_1_1["NgZoneError"]
+                });
+            },
+            function (exceptions_1_1) {
+                exceptions_1 = exceptions_1_1;
             }],
         execute: function() {
-            /**
-             * Stores error information; delivered via [NgZone.onError] stream.
-             */
-            NgZoneError = (function () {
-                function NgZoneError(error, stackTrace) {
-                    this.error = error;
-                    this.stackTrace = stackTrace;
-                }
-                return NgZoneError;
-            }());
-            exports_1("NgZoneError", NgZoneError);
             /**
              * An injectable service for executing work inside or outside of the Angular zone.
              *
@@ -106,185 +95,130 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                  *               enabled in development mode as they significantly impact perf.
                  */
                 function NgZone(_a) {
-                    var enableLongStackTrace = _a.enableLongStackTrace;
+                    var _this = this;
+                    var _b = _a.enableLongStackTrace, enableLongStackTrace = _b === void 0 ? false : _b;
+                    this._hasPendingMicrotasks = false;
+                    this._hasPendingMacrotasks = false;
                     /** @internal */
-                    this._runScope = profile_1.wtfCreateScope("NgZone#run()");
+                    this._isStable = true;
                     /** @internal */
-                    this._microtaskScope = profile_1.wtfCreateScope("NgZone#microtask()");
-                    // Number of microtasks pending from _innerZone (& descendants)
+                    this._nesting = 0;
                     /** @internal */
-                    this._pendingMicrotasks = 0;
-                    // Whether some code has been executed in the _innerZone (& descendants) in the current turn
+                    this._onUnstable = new async_1.EventEmitter(false);
                     /** @internal */
-                    this._hasExecutedCodeInInnerZone = false;
-                    // run() call depth in _mountZone. 0 at the end of a macrotask
-                    // zone.run(() => {         // top-level call
-                    //   zone.run(() => {});    // nested call -> in-turn
-                    // });
+                    this._onMicrotaskEmpty = new async_1.EventEmitter(false);
                     /** @internal */
-                    this._nestedRun = 0;
+                    this._onStable = new async_1.EventEmitter(false);
                     /** @internal */
-                    this._inVmTurnDone = false;
-                    /** @internal */
-                    this._pendingTimeouts = [];
-                    if (lang_1.global.zone) {
-                        this._disabled = false;
-                        this._mountZone = lang_1.global.zone;
-                        this._innerZone = this._createInnerZone(this._mountZone, enableLongStackTrace);
-                    }
-                    else {
-                        this._disabled = true;
-                        this._mountZone = null;
-                    }
-                    this._onTurnStartEvents = new async_1.EventEmitter(false);
-                    this._onTurnDoneEvents = new async_1.EventEmitter(false);
-                    this._onEventDoneEvents = new async_1.EventEmitter(false);
                     this._onErrorEvents = new async_1.EventEmitter(false);
-                }
-                /**
-                 * Sets the zone hook that is called just before a browser task that is handled by Angular
-                 * executes.
-                 *
-                 * The hook is called once per browser task that is handled by Angular.
-                 *
-                 * Setting the hook overrides any previously set hook.
-                 *
-                 * @deprecated this API will be removed in the future. Use `onTurnStart` instead.
-                 */
-                NgZone.prototype.overrideOnTurnStart = function (onTurnStartHook) {
-                    this._onTurnStart = lang_1.normalizeBlank(onTurnStartHook);
-                };
-                Object.defineProperty(NgZone.prototype, "onTurnStart", {
-                    /**
-                     * Notifies subscribers just before Angular event turn starts.
-                     *
-                     * Emits an event once per browser task that is handled by Angular.
-                     */
-                    get: function () { return this._onTurnStartEvents; },
-                    enumerable: true,
-                    configurable: true
-                });
-                /** @internal */
-                NgZone.prototype._notifyOnTurnStart = function (parentRun) {
-                    var _this = this;
-                    parentRun.call(this._innerZone, function () { _this._onTurnStartEvents.emit(null); });
-                };
-                /**
-                 * Sets the zone hook that is called immediately after Angular zone is done processing the current
-                 * task and any microtasks scheduled from that task.
-                 *
-                 * This is where we typically do change-detection.
-                 *
-                 * The hook is called once per browser task that is handled by Angular.
-                 *
-                 * Setting the hook overrides any previously set hook.
-                 *
-                 * @deprecated this API will be removed in the future. Use `onTurnDone` instead.
-                 */
-                NgZone.prototype.overrideOnTurnDone = function (onTurnDoneHook) {
-                    this._onTurnDone = lang_1.normalizeBlank(onTurnDoneHook);
-                };
-                Object.defineProperty(NgZone.prototype, "onTurnDone", {
-                    /**
-                     * Notifies subscribers immediately after Angular zone is done processing
-                     * the current turn and any microtasks scheduled from that turn.
-                     *
-                     * Used by Angular as a signal to kick off change-detection.
-                     */
-                    get: function () { return this._onTurnDoneEvents; },
-                    enumerable: true,
-                    configurable: true
-                });
-                /** @internal */
-                NgZone.prototype._notifyOnTurnDone = function (parentRun) {
-                    var _this = this;
-                    parentRun.call(this._innerZone, function () { _this._onTurnDoneEvents.emit(null); });
-                };
-                /**
-                 * Sets the zone hook that is called immediately after the `onTurnDone` callback is called and any
-                 * microstasks scheduled from within that callback are drained.
-                 *
-                 * `onEventDoneFn` is executed outside Angular zone, which means that we will no longer attempt to
-                 * sync the UI with any model changes that occur within this callback.
-                 *
-                 * This hook is useful for validating application state (e.g. in a test).
-                 *
-                 * Setting the hook overrides any previously set hook.
-                 *
-                 * @deprecated this API will be removed in the future. Use `onEventDone` instead.
-                 */
-                NgZone.prototype.overrideOnEventDone = function (onEventDoneFn, opt_waitForAsync) {
-                    var _this = this;
-                    if (opt_waitForAsync === void 0) { opt_waitForAsync = false; }
-                    var normalizedOnEventDone = lang_1.normalizeBlank(onEventDoneFn);
-                    if (opt_waitForAsync) {
-                        this._onEventDone = function () {
-                            if (!_this._pendingTimeouts.length) {
-                                normalizedOnEventDone();
+                    this._zoneImpl = new ng_zone_impl_1.NgZoneImpl({
+                        trace: enableLongStackTrace,
+                        onEnter: function () {
+                            // console.log('ZONE.enter', this._nesting, this._isStable);
+                            _this._nesting++;
+                            if (_this._isStable) {
+                                _this._isStable = false;
+                                _this._onUnstable.emit(null);
                             }
-                        };
-                    }
-                    else {
-                        this._onEventDone = normalizedOnEventDone;
+                        },
+                        onLeave: function () {
+                            _this._nesting--;
+                            // console.log('ZONE.leave', this._nesting, this._isStable);
+                            _this._checkStable();
+                        },
+                        setMicrotask: function (hasMicrotasks) {
+                            _this._hasPendingMicrotasks = hasMicrotasks;
+                            _this._checkStable();
+                        },
+                        setMacrotask: function (hasMacrotasks) { _this._hasPendingMacrotasks = hasMacrotasks; },
+                        onError: function (error) { return _this._onErrorEvents.emit(error); }
+                    });
+                }
+                NgZone.isInAngularZone = function () { return ng_zone_impl_1.NgZoneImpl.isInAngularZone(); };
+                NgZone.assertInAngularZone = function () {
+                    if (!ng_zone_impl_1.NgZoneImpl.isInAngularZone()) {
+                        throw new exceptions_1.BaseException('Expected to be in Angular Zone, but it is not!');
                     }
                 };
-                Object.defineProperty(NgZone.prototype, "onEventDone", {
+                NgZone.assertNotInAngularZone = function () {
+                    if (ng_zone_impl_1.NgZoneImpl.isInAngularZone()) {
+                        throw new exceptions_1.BaseException('Expected to not be in Angular Zone, but it is!');
+                    }
+                };
+                NgZone.prototype._checkStable = function () {
+                    var _this = this;
+                    if (this._nesting == 0) {
+                        if (!this._hasPendingMicrotasks && !this._isStable) {
+                            try {
+                                // console.log('ZONE.microtaskEmpty');
+                                this._nesting++;
+                                this._onMicrotaskEmpty.emit(null);
+                            }
+                            finally {
+                                this._nesting--;
+                                if (!this._hasPendingMicrotasks) {
+                                    try {
+                                        // console.log('ZONE.stable', this._nesting, this._isStable);
+                                        this.runOutsideAngular(function () { return _this._onStable.emit(null); });
+                                    }
+                                    finally {
+                                        this._isStable = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                ;
+                Object.defineProperty(NgZone.prototype, "onUnstable", {
                     /**
-                     * Notifies subscribers immediately after the final `onTurnDone` callback
-                     * before ending VM event.
-                     *
-                     * This event is useful for validating application state (e.g. in a test).
+                     * Notifies when code enters Angular Zone. This gets fired first on VM Turn.
                      */
-                    get: function () { return this._onEventDoneEvents; },
+                    get: function () { return this._onUnstable; },
                     enumerable: true,
                     configurable: true
                 });
-                /** @internal */
-                NgZone.prototype._notifyOnEventDone = function () {
-                    var _this = this;
-                    this.runOutsideAngular(function () { _this._onEventDoneEvents.emit(null); });
-                };
+                Object.defineProperty(NgZone.prototype, "onMicrotaskEmpty", {
+                    /**
+                     * Notifies when there is no more microtasks enqueue in the current VM Turn.
+                     * This is a hint for Angular to do change detection, which may enqueue more microtasks.
+                     * For this reason this event can fire multiple times per VM Turn.
+                     */
+                    get: function () { return this._onMicrotaskEmpty; },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(NgZone.prototype, "onStable", {
+                    /**
+                     * Notifies when the last `onMicrotaskEmpty` has run and there are no more microtasks, which
+                     * implies we are about to relinquish VM turn.
+                     * This event gets called just once.
+                     */
+                    get: function () { return this._onStable; },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(NgZone.prototype, "onError", {
+                    /**
+                     * Notify that an error has been delivered.
+                     */
+                    get: function () { return this._onErrorEvents; },
+                    enumerable: true,
+                    configurable: true
+                });
                 Object.defineProperty(NgZone.prototype, "hasPendingMicrotasks", {
                     /**
                      * Whether there are any outstanding microtasks.
                      */
-                    get: function () { return this._pendingMicrotasks > 0; },
+                    get: function () { return this._hasPendingMicrotasks; },
                     enumerable: true,
                     configurable: true
                 });
-                Object.defineProperty(NgZone.prototype, "hasPendingTimers", {
+                Object.defineProperty(NgZone.prototype, "hasPendingMacrotasks", {
                     /**
-                     * Whether there are any outstanding timers.
+                     * Whether there are any outstanding microtasks.
                      */
-                    get: function () { return this._pendingTimeouts.length > 0; },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(NgZone.prototype, "hasPendingAsyncTasks", {
-                    /**
-                     * Whether there are any outstanding asynchronous tasks of any kind that are
-                     * scheduled to run within Angular zone.
-                     *
-                     * Useful as a signal of UI stability. For example, when a test reaches a
-                     * point when [hasPendingAsyncTasks] is `false` it might be a good time to run
-                     * test expectations.
-                     */
-                    get: function () { return this.hasPendingMicrotasks || this.hasPendingTimers; },
-                    enumerable: true,
-                    configurable: true
-                });
-                /**
-                 * Sets the zone hook that is called when an error is thrown in the Angular zone.
-                 *
-                 * Setting the hook overrides any previously set hook.
-                 *
-                 * @deprecated this API will be removed in the future. Use `onError` instead.
-                 */
-                NgZone.prototype.overrideOnErrorHandler = function (errorHandler) {
-                    this._onErrorHandler = lang_1.normalizeBlank(errorHandler);
-                };
-                Object.defineProperty(NgZone.prototype, "onError", {
-                    get: function () { return this._onErrorEvents; },
+                    get: function () { return this._hasPendingMacrotasks; },
                     enumerable: true,
                     configurable: true
                 });
@@ -298,20 +232,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                  * Any future tasks or microtasks scheduled from within this function will continue executing from
                  * within the Angular zone.
                  */
-                NgZone.prototype.run = function (fn) {
-                    if (this._disabled) {
-                        return fn();
-                    }
-                    else {
-                        var s = this._runScope();
-                        try {
-                            return this._innerZone.run(fn);
-                        }
-                        finally {
-                            profile_1.wtfLeave(s);
-                        }
-                    }
-                };
+                NgZone.prototype.run = function (fn) { return this._zoneImpl.runInner(fn); };
                 /**
                  * Executes the `fn` function synchronously in Angular's parent zone and returns value returned by
                  * the function.
@@ -324,135 +245,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                  *
                  * Use {@link #run} to reenter the Angular zone and do work that updates the application model.
                  */
-                NgZone.prototype.runOutsideAngular = function (fn) {
-                    if (this._disabled) {
-                        return fn();
-                    }
-                    else {
-                        return this._mountZone.run(fn);
-                    }
-                };
-                /** @internal */
-                NgZone.prototype._createInnerZone = function (zone, enableLongStackTrace) {
-                    var microtaskScope = this._microtaskScope;
-                    var ngZone = this;
-                    var errorHandling;
-                    if (enableLongStackTrace) {
-                        errorHandling =
-                            collection_1.StringMapWrapper.merge(lang_1.global.Zone.longStackTraceZone, { onError: function (e) { ngZone._notifyOnError(this, e); } });
-                    }
-                    else {
-                        errorHandling = { onError: function (e) { ngZone._notifyOnError(this, e); } };
-                    }
-                    return zone.fork(errorHandling)
-                        .fork({
-                        '$run': function (parentRun) {
-                            return function () {
-                                try {
-                                    ngZone._nestedRun++;
-                                    if (!ngZone._hasExecutedCodeInInnerZone) {
-                                        ngZone._hasExecutedCodeInInnerZone = true;
-                                        ngZone._notifyOnTurnStart(parentRun);
-                                        if (ngZone._onTurnStart) {
-                                            parentRun.call(ngZone._innerZone, ngZone._onTurnStart);
-                                        }
-                                    }
-                                    return parentRun.apply(this, arguments);
-                                }
-                                finally {
-                                    ngZone._nestedRun--;
-                                    // If there are no more pending microtasks, we are at the end of a VM turn (or in
-                                    // onTurnStart)
-                                    // _nestedRun will be 0 at the end of a macrotasks (it could be > 0 when there are
-                                    // nested calls
-                                    // to run()).
-                                    if (ngZone._pendingMicrotasks == 0 && ngZone._nestedRun == 0 &&
-                                        !this._inVmTurnDone) {
-                                        if (ngZone._hasExecutedCodeInInnerZone) {
-                                            try {
-                                                this._inVmTurnDone = true;
-                                                ngZone._notifyOnTurnDone(parentRun);
-                                                if (ngZone._onTurnDone) {
-                                                    parentRun.call(ngZone._innerZone, ngZone._onTurnDone);
-                                                }
-                                            }
-                                            finally {
-                                                this._inVmTurnDone = false;
-                                                ngZone._hasExecutedCodeInInnerZone = false;
-                                            }
-                                        }
-                                        if (ngZone._pendingMicrotasks === 0) {
-                                            ngZone._notifyOnEventDone();
-                                            if (lang_1.isPresent(ngZone._onEventDone)) {
-                                                ngZone.runOutsideAngular(ngZone._onEventDone);
-                                            }
-                                        }
-                                    }
-                                }
-                            };
-                        },
-                        '$scheduleMicrotask': function (parentScheduleMicrotask) {
-                            return function (fn) {
-                                ngZone._pendingMicrotasks++;
-                                var microtask = function () {
-                                    var s = microtaskScope();
-                                    try {
-                                        fn();
-                                    }
-                                    finally {
-                                        ngZone._pendingMicrotasks--;
-                                        profile_1.wtfLeave(s);
-                                    }
-                                };
-                                parentScheduleMicrotask.call(this, microtask);
-                            };
-                        },
-                        '$setTimeout': function (parentSetTimeout) {
-                            return function (fn, delay) {
-                                var args = [];
-                                for (var _i = 2; _i < arguments.length; _i++) {
-                                    args[_i - 2] = arguments[_i];
-                                }
-                                var id;
-                                var cb = function () {
-                                    fn();
-                                    collection_1.ListWrapper.remove(ngZone._pendingTimeouts, id);
-                                };
-                                id = parentSetTimeout.call(this, cb, delay, args);
-                                ngZone._pendingTimeouts.push(id);
-                                return id;
-                            };
-                        },
-                        '$clearTimeout': function (parentClearTimeout) {
-                            return function (id) {
-                                parentClearTimeout.call(this, id);
-                                collection_1.ListWrapper.remove(ngZone._pendingTimeouts, id);
-                            };
-                        },
-                        _innerZone: true
-                    });
-                };
-                /** @internal */
-                NgZone.prototype._notifyOnError = function (zone, e) {
-                    if (lang_1.isPresent(this._onErrorHandler) || async_1.ObservableWrapper.hasSubscribers(this._onErrorEvents)) {
-                        var trace = [lang_1.normalizeBlank(e.stack)];
-                        while (zone && zone.constructedAtException) {
-                            trace.push(zone.constructedAtException.get());
-                            zone = zone.parent;
-                        }
-                        if (async_1.ObservableWrapper.hasSubscribers(this._onErrorEvents)) {
-                            async_1.ObservableWrapper.callEmit(this._onErrorEvents, new NgZoneError(e, trace));
-                        }
-                        if (lang_1.isPresent(this._onErrorHandler)) {
-                            this._onErrorHandler(e, trace);
-                        }
-                    }
-                    else {
-                        console.log('## _notifyOnError ##');
-                        console.log(e.stack);
-                        throw e;
-                    }
-                };
+                NgZone.prototype.runOutsideAngular = function (fn) { return this._zoneImpl.runOuter(fn); };
                 return NgZone;
             }());
             exports_1("NgZone", NgZone);

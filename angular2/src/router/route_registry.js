@@ -1,4 +1,4 @@
-System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 'angular2/src/facade/lang', 'angular2/src/facade/exceptions', 'angular2/src/core/reflection/reflection', 'angular2/core', './route_config_impl', './route_recognizer', './component_recognizer', './instruction', './route_config_nomalizer', './url_parser'], function(exports_1, context_1) {
+System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 'angular2/src/facade/lang', 'angular2/src/facade/exceptions', 'angular2/src/core/reflection/reflection', 'angular2/core', './route_config/route_config_impl', './rules/rules', './rules/rule_set', './instruction', './route_config/route_config_normalizer', './url_parser'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -13,21 +13,24 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 
     var __param = (this && this.__param) || function (paramIndex, decorator) {
         return function (target, key) { decorator(target, key, paramIndex); }
     };
-    var collection_1, async_1, lang_1, exceptions_1, reflection_1, core_1, route_config_impl_1, route_recognizer_1, component_recognizer_1, instruction_1, route_config_nomalizer_1, url_parser_1;
+    var collection_1, async_1, lang_1, exceptions_1, reflection_1, core_1, route_config_impl_1, rules_1, rule_set_1, instruction_1, route_config_normalizer_1, url_parser_1;
     var _resolveToNull, ROUTER_PRIMARY_COMPONENT, RouteRegistry;
     /*
      * Given: ['/a/b', {c: 2}]
      * Returns: ['', 'a', 'b', {c: 2}]
      */
     function splitAndFlattenLinkParams(linkParams) {
-        return linkParams.reduce(function (accumulation, item) {
+        var accumulation = [];
+        linkParams.forEach(function (item) {
             if (lang_1.isString(item)) {
                 var strItem = item;
-                return accumulation.concat(strItem.split('/'));
+                accumulation = accumulation.concat(strItem.split('/'));
             }
-            accumulation.push(item);
-            return accumulation;
-        }, []);
+            else {
+                accumulation.push(item);
+            }
+        });
+        return accumulation;
     }
     /*
      * Given a list of instructions, returns the most specific instruction
@@ -103,23 +106,32 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 
             function (route_config_impl_1_1) {
                 route_config_impl_1 = route_config_impl_1_1;
             },
-            function (route_recognizer_1_1) {
-                route_recognizer_1 = route_recognizer_1_1;
+            function (rules_1_1) {
+                rules_1 = rules_1_1;
             },
-            function (component_recognizer_1_1) {
-                component_recognizer_1 = component_recognizer_1_1;
+            function (rule_set_1_1) {
+                rule_set_1 = rule_set_1_1;
             },
             function (instruction_1_1) {
                 instruction_1 = instruction_1_1;
             },
-            function (route_config_nomalizer_1_1) {
-                route_config_nomalizer_1 = route_config_nomalizer_1_1;
+            function (route_config_normalizer_1_1) {
+                route_config_normalizer_1 = route_config_normalizer_1_1;
             },
             function (url_parser_1_1) {
                 url_parser_1 = url_parser_1_1;
             }],
         execute: function() {
             _resolveToNull = async_1.PromiseWrapper.resolve(null);
+            // A LinkItemArray is an array, which describes a set of routes
+            // The items in the array are found in groups:
+            // - the first item is the name of the route
+            // - the next items are:
+            //   - an object containing parameters
+            //   - or an array describing an aux route
+            // export type LinkRouteItem = string | Object;
+            // export type LinkItem = LinkRouteItem | Array<LinkRouteItem>;
+            // export type LinkItemArray = Array<LinkItem>;
             /**
              * Token used to bind the component with the top-level {@link RouteConfig}s for the
              * application.
@@ -160,20 +172,20 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 
                  * Given a component and a configuration object, add the route to this registry
                  */
                 RouteRegistry.prototype.config = function (parentComponent, config) {
-                    config = route_config_nomalizer_1.normalizeRouteConfig(config, this);
+                    config = route_config_normalizer_1.normalizeRouteConfig(config, this);
                     // this is here because Dart type guard reasons
                     if (config instanceof route_config_impl_1.Route) {
-                        route_config_nomalizer_1.assertComponentExists(config.component, config.path);
+                        route_config_normalizer_1.assertComponentExists(config.component, config.path);
                     }
                     else if (config instanceof route_config_impl_1.AuxRoute) {
-                        route_config_nomalizer_1.assertComponentExists(config.component, config.path);
+                        route_config_normalizer_1.assertComponentExists(config.component, config.path);
                     }
-                    var recognizer = this._rules.get(parentComponent);
-                    if (lang_1.isBlank(recognizer)) {
-                        recognizer = new component_recognizer_1.ComponentRecognizer();
-                        this._rules.set(parentComponent, recognizer);
+                    var rules = this._rules.get(parentComponent);
+                    if (lang_1.isBlank(rules)) {
+                        rules = new rule_set_1.RuleSet();
+                        this._rules.set(parentComponent, rules);
                     }
-                    var terminal = recognizer.config(config);
+                    var terminal = rules.config(config);
                     if (config instanceof route_config_impl_1.Route) {
                         if (terminal) {
                             assertTerminalComponent(config.component, config.path);
@@ -224,23 +236,22 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 
                     var parentInstruction = collection_1.ListWrapper.last(ancestorInstructions);
                     var parentComponent = lang_1.isPresent(parentInstruction) ? parentInstruction.component.componentType :
                         this._rootComponent;
-                    var componentRecognizer = this._rules.get(parentComponent);
-                    if (lang_1.isBlank(componentRecognizer)) {
+                    var rules = this._rules.get(parentComponent);
+                    if (lang_1.isBlank(rules)) {
                         return _resolveToNull;
                     }
                     // Matches some beginning part of the given URL
-                    var possibleMatches = _aux ? componentRecognizer.recognizeAuxiliary(parsedUrl) :
-                        componentRecognizer.recognize(parsedUrl);
+                    var possibleMatches = _aux ? rules.recognizeAuxiliary(parsedUrl) : rules.recognize(parsedUrl);
                     var matchPromises = possibleMatches.map(function (candidate) { return candidate.then(function (candidate) {
-                        if (candidate instanceof route_recognizer_1.PathMatch) {
+                        if (candidate instanceof rules_1.PathMatch) {
                             var auxParentInstructions = ancestorInstructions.length > 0 ? [collection_1.ListWrapper.last(ancestorInstructions)] : [];
                             var auxInstructions = _this._auxRoutesToUnresolved(candidate.remainingAux, auxParentInstructions);
                             var instruction = new instruction_1.ResolvedInstruction(candidate.instruction, null, auxInstructions);
                             if (lang_1.isBlank(candidate.instruction) || candidate.instruction.terminal) {
                                 return instruction;
                             }
-                            var newAncestorComponents = ancestorInstructions.concat([instruction]);
-                            return _this._recognize(candidate.remaining, newAncestorComponents)
+                            var newAncestorInstructions = ancestorInstructions.concat([instruction]);
+                            return _this._recognize(candidate.remaining, newAncestorInstructions)
                                 .then(function (childInstruction) {
                                 if (lang_1.isBlank(childInstruction)) {
                                     return null;
@@ -253,7 +264,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 
                                 return instruction;
                             });
                         }
-                        if (candidate instanceof route_recognizer_1.RedirectMatch) {
+                        if (candidate instanceof rules_1.RedirectMatch) {
                             var instruction = _this.generate(candidate.redirectTo, ancestorInstructions.concat([null]));
                             return new instruction_1.RedirectInstruction(instruction.component, instruction.child, instruction.auxInstruction, candidate.specificity);
                         }
@@ -382,8 +393,8 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 
                         auxInstructions = collection_1.StringMapWrapper.merge(prevInstruction.auxInstruction, auxInstructions);
                         componentInstruction = prevInstruction.component;
                     }
-                    var componentRecognizer = this._rules.get(parentComponentType);
-                    if (lang_1.isBlank(componentRecognizer)) {
+                    var rules = this._rules.get(parentComponentType);
+                    if (lang_1.isBlank(rules)) {
                         throw new exceptions_1.BaseException("Component \"" + lang_1.getTypeNameForDebugging(parentComponentType) + "\" has no route config.");
                     }
                     var linkParamIndex = 0;
@@ -402,7 +413,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 
                                 linkParamIndex += 1;
                             }
                         }
-                        var routeRecognizer = (_aux ? componentRecognizer.auxNames : componentRecognizer.names).get(routeName);
+                        var routeRecognizer = (_aux ? rules.auxRulesByName : rules.rulesByName).get(routeName);
                         if (lang_1.isBlank(routeRecognizer)) {
                             throw new exceptions_1.BaseException("Component \"" + lang_1.getTypeNameForDebugging(parentComponentType) + "\" has no route named \"" + routeName + "\".");
                         }
@@ -410,15 +421,15 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 
                         // we'll figure out the rest of the route when we resolve the instruction and
                         // perform a navigation
                         if (lang_1.isBlank(routeRecognizer.handler.componentType)) {
-                            var compInstruction = routeRecognizer.generateComponentPathValues(routeParams);
+                            var generatedUrl = routeRecognizer.generateComponentPathValues(routeParams);
                             return new instruction_1.UnresolvedInstruction(function () {
                                 return routeRecognizer.handler.resolveComponentType().then(function (_) {
                                     return _this._generate(linkParams, ancestorInstructions, prevInstruction, _aux, _originalLink);
                                 });
-                            }, compInstruction['urlPath'], compInstruction['urlParams']);
+                            }, generatedUrl.urlPath, url_parser_1.convertUrlParamsToArray(generatedUrl.urlParams));
                         }
-                        componentInstruction = _aux ? componentRecognizer.generateAuxiliary(routeName, routeParams) :
-                            componentRecognizer.generate(routeName, routeParams);
+                        componentInstruction = _aux ? rules.generateAuxiliary(routeName, routeParams) :
+                            rules.generate(routeName, routeParams);
                     }
                     // Next, recognize auxiliary instructions.
                     // If we have an ancestor instruction, we preserve whatever aux routes are active from it.
@@ -448,31 +459,31 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/async', 
                     return instruction;
                 };
                 RouteRegistry.prototype.hasRoute = function (name, parentComponent) {
-                    var componentRecognizer = this._rules.get(parentComponent);
-                    if (lang_1.isBlank(componentRecognizer)) {
+                    var rules = this._rules.get(parentComponent);
+                    if (lang_1.isBlank(rules)) {
                         return false;
                     }
-                    return componentRecognizer.hasRoute(name);
+                    return rules.hasRoute(name);
                 };
                 RouteRegistry.prototype.generateDefault = function (componentCursor) {
                     var _this = this;
                     if (lang_1.isBlank(componentCursor)) {
                         return null;
                     }
-                    var componentRecognizer = this._rules.get(componentCursor);
-                    if (lang_1.isBlank(componentRecognizer) || lang_1.isBlank(componentRecognizer.defaultRoute)) {
+                    var rules = this._rules.get(componentCursor);
+                    if (lang_1.isBlank(rules) || lang_1.isBlank(rules.defaultRule)) {
                         return null;
                     }
                     var defaultChild = null;
-                    if (lang_1.isPresent(componentRecognizer.defaultRoute.handler.componentType)) {
-                        var componentInstruction = componentRecognizer.defaultRoute.generate({});
-                        if (!componentRecognizer.defaultRoute.terminal) {
-                            defaultChild = this.generateDefault(componentRecognizer.defaultRoute.handler.componentType);
+                    if (lang_1.isPresent(rules.defaultRule.handler.componentType)) {
+                        var componentInstruction = rules.defaultRule.generate({});
+                        if (!rules.defaultRule.terminal) {
+                            defaultChild = this.generateDefault(rules.defaultRule.handler.componentType);
                         }
                         return new instruction_1.DefaultInstruction(componentInstruction, defaultChild);
                     }
                     return new instruction_1.UnresolvedInstruction(function () {
-                        return componentRecognizer.defaultRoute.handler.resolveComponentType().then(function (_) { return _this.generateDefault(componentCursor); });
+                        return rules.defaultRule.handler.resolveComponentType().then(function (_) { return _this.generateDefault(componentCursor); });
                     });
                 };
                 RouteRegistry = __decorate([

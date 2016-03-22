@@ -169,15 +169,16 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/async', 'angul
                         this._parent.updateValueAndValidity({ onlySelf: onlySelf, emitEvent: emitEvent });
                     }
                 };
-                AbstractControl.prototype._runValidator = function () { return lang_1.isPresent(this.validator) ? this.validator(this) : null; };
+                AbstractControl.prototype._runValidator = function () {
+                    return lang_1.isPresent(this.validator) ? this.validator(this) : null;
+                };
                 AbstractControl.prototype._runAsyncValidator = function (emitEvent) {
                     var _this = this;
                     if (lang_1.isPresent(this.asyncValidator)) {
                         this._status = PENDING;
                         this._cancelExistingSubscription();
                         var obs = toObservable(this.asyncValidator(this));
-                        this._asyncValidationSubscription =
-                            async_1.ObservableWrapper.subscribe(obs, function (res) { return _this.setErrors(res, { emitEvent: emitEvent }); });
+                        this._asyncValidationSubscription = async_1.ObservableWrapper.subscribe(obs, function (res) { return _this.setErrors(res, { emitEvent: emitEvent }); });
                     }
                 };
                 AbstractControl.prototype._cancelExistingSubscription = function () {

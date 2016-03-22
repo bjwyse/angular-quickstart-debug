@@ -114,8 +114,8 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
             exports_1("HtmlToken", HtmlToken);
             HtmlTokenError = (function (_super) {
                 __extends(HtmlTokenError, _super);
-                function HtmlTokenError(errorMsg, tokenType, location) {
-                    _super.call(this, location, errorMsg);
+                function HtmlTokenError(errorMsg, tokenType, span) {
+                    _super.call(this, span, errorMsg);
                     this.tokenType = tokenType;
                 }
                 return HtmlTokenError;
@@ -186,7 +186,8 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                 }
                 _HtmlTokenizer.prototype._processCarriageReturns = function (content) {
                     // http://www.w3.org/TR/html5/syntax.html#preprocessing-the-input-stream
-                    // In order to keep the original position in the source, we can not pre-process it.
+                    // In order to keep the original position in the source, we can not
+                    // pre-process it.
                     // Instead CRs are processed right before instantiating the tokens.
                     return lang_1.StringWrapper.replaceAll(content, CR_OR_CRLF_REGEXP, '\n');
                 };
@@ -233,6 +234,15 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                 _HtmlTokenizer.prototype._getLocation = function () {
                     return new parse_util_1.ParseLocation(this.file, this.index, this.line, this.column);
                 };
+                _HtmlTokenizer.prototype._getSpan = function (start, end) {
+                    if (lang_1.isBlank(start)) {
+                        start = this._getLocation();
+                    }
+                    if (lang_1.isBlank(end)) {
+                        end = this._getLocation();
+                    }
+                    return new parse_util_1.ParseSourceSpan(start, end);
+                };
                 _HtmlTokenizer.prototype._beginToken = function (type, start) {
                     if (start === void 0) { start = null; }
                     if (lang_1.isBlank(start)) {
@@ -252,15 +262,15 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                     this.currentTokenType = null;
                     return token;
                 };
-                _HtmlTokenizer.prototype._createError = function (msg, position) {
-                    var error = new HtmlTokenError(msg, this.currentTokenType, position);
+                _HtmlTokenizer.prototype._createError = function (msg, span) {
+                    var error = new HtmlTokenError(msg, this.currentTokenType, span);
                     this.currentTokenStart = null;
                     this.currentTokenType = null;
                     return new ControlFlowError(error);
                 };
                 _HtmlTokenizer.prototype._advance = function () {
                     if (this.index >= this.length) {
-                        throw this._createError(unexpectedCharacterErrorMsg($EOF), this._getLocation());
+                        throw this._createError(unexpectedCharacterErrorMsg($EOF), this._getSpan());
                     }
                     if (this.peek === $LF) {
                         this.line++;
@@ -289,7 +299,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                 _HtmlTokenizer.prototype._requireCharCode = function (charCode) {
                     var location = this._getLocation();
                     if (!this._attemptCharCode(charCode)) {
-                        throw this._createError(unexpectedCharacterErrorMsg(this.peek), location);
+                        throw this._createError(unexpectedCharacterErrorMsg(this.peek), this._getSpan(location, location));
                     }
                 };
                 _HtmlTokenizer.prototype._attemptStr = function (chars) {
@@ -311,7 +321,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                 _HtmlTokenizer.prototype._requireStr = function (chars) {
                     var location = this._getLocation();
                     if (!this._attemptStr(chars)) {
-                        throw this._createError(unexpectedCharacterErrorMsg(this.peek), location);
+                        throw this._createError(unexpectedCharacterErrorMsg(this.peek), this._getSpan(location));
                     }
                 };
                 _HtmlTokenizer.prototype._attemptCharCodeUntilFn = function (predicate) {
@@ -323,7 +333,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                     var start = this._getLocation();
                     this._attemptCharCodeUntilFn(predicate);
                     if (this.index - start.offset < len) {
-                        throw this._createError(unexpectedCharacterErrorMsg(this.peek), start);
+                        throw this._createError(unexpectedCharacterErrorMsg(this.peek), this._getSpan(start, start));
                     }
                 };
                 _HtmlTokenizer.prototype._attemptUntilChar = function (char) {
@@ -349,7 +359,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                         var numberStart = this._getLocation().offset;
                         this._attemptCharCodeUntilFn(isDigitEntityEnd);
                         if (this.peek != $SEMICOLON) {
-                            throw this._createError(unexpectedCharacterErrorMsg(this.peek), this._getLocation());
+                            throw this._createError(unexpectedCharacterErrorMsg(this.peek), this._getSpan());
                         }
                         this._advance();
                         var strNum = this.input.substring(numberStart, this.index - 1);
@@ -359,7 +369,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                         }
                         catch (e) {
                             var entity = this.input.substring(start.offset + 1, this.index - 1);
-                            throw this._createError(unknownEntityErrorMsg(entity), start);
+                            throw this._createError(unknownEntityErrorMsg(entity), this._getSpan(start));
                         }
                     }
                     else {
@@ -373,7 +383,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                         var name_1 = this.input.substring(start.offset + 1, this.index - 1);
                         var char = html_tags_1.NAMED_ENTITIES[name_1];
                         if (lang_1.isBlank(char)) {
-                            throw this._createError(unknownEntityErrorMsg(name_1), start);
+                            throw this._createError(unknownEntityErrorMsg(name_1), this._getSpan(start));
                         }
                         return char;
                     }
@@ -445,7 +455,7 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/collection', '
                     var lowercaseTagName;
                     try {
                         if (!isAsciiLetter(this.peek)) {
-                            throw this._createError(unexpectedCharacterErrorMsg(this.peek), this._getLocation());
+                            throw this._createError(unexpectedCharacterErrorMsg(this.peek), this._getSpan());
                         }
                         var nameStart = this.index;
                         this._consumeTagOpenStart(start);

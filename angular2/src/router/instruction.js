@@ -78,8 +78,10 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
              * ])
              * class AppCmp {}
              *
-             * @Component({...})
-             * @View({ template: 'user: {{isAdmin}}' })
+             * @Component({
+             *   ...,
+             *   template: 'user: {{isAdmin}}'
+             * })
              * class UserCmp {
              *   string: isAdmin;
              *   constructor(data: RouteData) {
@@ -185,7 +187,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                 // default instructions override these
                 Instruction.prototype.toLinkUrl = function () {
                     return this.urlPath + this._stringifyAux() +
-                        (lang_1.isPresent(this.child) ? this.child._toLinkUrl() : '');
+                        (lang_1.isPresent(this.child) ? this.child._toLinkUrl() : '') + this.toUrlQuery();
                 };
                 // this is the non-root version (called recursively)
                 /** @internal */
@@ -248,14 +250,11 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                 function DefaultInstruction(component, child) {
                     _super.call(this, component, child, {});
                 }
-                DefaultInstruction.prototype.resolveComponent = function () {
-                    return async_1.PromiseWrapper.resolve(this.component);
-                };
                 DefaultInstruction.prototype.toLinkUrl = function () { return ''; };
                 /** @internal */
                 DefaultInstruction.prototype._toLinkUrl = function () { return ''; };
                 return DefaultInstruction;
-            }(Instruction));
+            }(ResolvedInstruction));
             exports_1("DefaultInstruction", DefaultInstruction);
             /**
              * Represents a component that may need to do some redirection or lazy loading at a later time.
@@ -301,9 +300,9 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                     if (lang_1.isPresent(this.component)) {
                         return async_1.PromiseWrapper.resolve(this.component);
                     }
-                    return this._resolver().then(function (resolution) {
-                        _this.child = resolution.child;
-                        return _this.component = resolution.component;
+                    return this._resolver().then(function (instruction) {
+                        _this.child = lang_1.isPresent(instruction) ? instruction.child : null;
+                        return _this.component = lang_1.isPresent(instruction) ? instruction.component : null;
                     });
                 };
                 return UnresolvedInstruction;
@@ -324,8 +323,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
             }(ResolvedInstruction));
             exports_1("RedirectInstruction", RedirectInstruction);
             /**
-             * A `ComponentInstruction` represents the route state for a single component. An `Instruction` is
-             * composed of a tree of these `ComponentInstruction`s.
+             * A `ComponentInstruction` represents the route state for a single component.
              *
              * `ComponentInstructions` is a public API. Instances of `ComponentInstruction` are passed
              * to route lifecycle hooks, like {@link CanActivate}.
@@ -337,6 +335,9 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
              * You should not modify this object. It should be treated as immutable.
              */
             ComponentInstruction = (function () {
+                /**
+                 * @internal
+                 */
                 function ComponentInstruction(urlPath, urlParams, data, componentType, terminal, specificity, params) {
                     if (params === void 0) { params = null; }
                     this.urlPath = urlPath;

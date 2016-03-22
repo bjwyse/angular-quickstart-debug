@@ -11,7 +11,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var collection_1, lang_1, exceptions_1;
-    var DefaultKeyValueDifferFactory, DefaultKeyValueDiffer, KVChangeRecord;
+    var DefaultKeyValueDifferFactory, DefaultKeyValueDiffer, KeyValueChangeRecord;
     return {
         setters:[
             function (collection_1_1) {
@@ -129,7 +129,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                                 newSeqRecord = records.get(key);
                             }
                             else {
-                                newSeqRecord = new KVChangeRecord(key);
+                                newSeqRecord = new KeyValueChangeRecord(key);
                                 records.set(key, newSeqRecord);
                                 newSeqRecord.currentValue = value;
                                 _this._addToAdditions(newSeqRecord);
@@ -350,8 +350,8 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                 return DefaultKeyValueDiffer;
             }());
             exports_1("DefaultKeyValueDiffer", DefaultKeyValueDiffer);
-            KVChangeRecord = (function () {
-                function KVChangeRecord(key) {
+            KeyValueChangeRecord = (function () {
+                function KeyValueChangeRecord(key) {
                     this.key = key;
                     this.previousValue = null;
                     this.currentValue = null;
@@ -368,15 +368,15 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                     /** @internal */
                     this._nextChanged = null;
                 }
-                KVChangeRecord.prototype.toString = function () {
+                KeyValueChangeRecord.prototype.toString = function () {
                     return lang_1.looseIdentical(this.previousValue, this.currentValue) ?
                         lang_1.stringify(this.key) :
                         (lang_1.stringify(this.key) + '[' + lang_1.stringify(this.previousValue) + '->' +
                             lang_1.stringify(this.currentValue) + ']');
                 };
-                return KVChangeRecord;
+                return KeyValueChangeRecord;
             }());
-            exports_1("KVChangeRecord", KVChangeRecord);
+            exports_1("KeyValueChangeRecord", KeyValueChangeRecord);
         }
     }
 });

@@ -1,4 +1,4 @@
-System.register(['angular2/src/router/browser_platform_location', 'angular2/src/core/di', 'angular2/src/web_workers/shared/messaging_api', 'angular2/src/web_workers/shared/service_message_broker', 'angular2/src/web_workers/shared/serializer', './bind', 'angular2/src/web_workers/shared/serialized_types', 'angular2/src/web_workers/shared/message_bus', 'angular2/src/facade/async'], function(exports_1, context_1) {
+System.register(['angular2/src/router/location/browser_platform_location', 'angular2/src/core/di', 'angular2/src/web_workers/shared/messaging_api', 'angular2/src/web_workers/shared/service_message_broker', 'angular2/src/web_workers/shared/serializer', './bind', 'angular2/src/web_workers/shared/serialized_types', 'angular2/src/web_workers/shared/message_bus', 'angular2/src/facade/async'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {

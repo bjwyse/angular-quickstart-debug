@@ -254,9 +254,13 @@ System.register(['angular2/src/facade/lang'], function(exports_1, context_1) {
         execute: function() {
             _nextClassId = 0;
             Reflect = lang_1.global.Reflect;
-            if (!(Reflect && Reflect.getMetadata)) {
-                throw 'reflect-metadata shim is required when using class decorators';
-            }
+            // Throw statement at top-level is disallowed by closure compiler in ES6 input.
+            // Wrap in an IIFE as a work-around.
+            (function checkReflect() {
+                if (!(Reflect && Reflect.getMetadata)) {
+                    throw 'reflect-metadata shim is required when using class decorators';
+                }
+            })();
         }
     }
 });

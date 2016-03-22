@@ -8,6 +8,21 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
     };
     var collection_1, lang_1, exceptions_1;
     var Url, RootUrl, SEGMENT_RE, UrlParser, parser;
+    function convertUrlParamsToArray(urlParams) {
+        var paramsArray = [];
+        if (lang_1.isBlank(urlParams)) {
+            return [];
+        }
+        collection_1.StringMapWrapper.forEach(urlParams, function (value, key) { paramsArray.push((value === true) ? key : key + '=' + value); });
+        return paramsArray;
+    }
+    exports_1("convertUrlParamsToArray", convertUrlParamsToArray);
+    // Convert an object of url parameters into a string that can be used in an URL
+    function serializeParams(urlParams, joiner) {
+        if (joiner === void 0) { joiner = '&'; }
+        return convertUrlParamsToArray(urlParams).join(joiner);
+    }
+    exports_1("serializeParams", serializeParams);
     function pathSegmentsToUrl(pathSegments) {
         var url = new Url(pathSegments[pathSegments.length - 1]);
         for (var i = pathSegments.length - 2; i >= 0; i -= 1) {
@@ -20,21 +35,6 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
         var match = lang_1.RegExpWrapper.firstMatch(SEGMENT_RE, str);
         return lang_1.isPresent(match) ? match[0] : '';
     }
-    function serializeParams(paramMap) {
-        var params = [];
-        if (lang_1.isPresent(paramMap)) {
-            collection_1.StringMapWrapper.forEach(paramMap, function (value, key) {
-                if (value === true) {
-                    params.push(key);
-                }
-                else {
-                    params.push(key + '=' + value);
-                }
-            });
-        }
-        return params;
-    }
-    exports_1("serializeParams", serializeParams);
     return {
         setters:[
             function (collection_1_1) {
@@ -54,7 +54,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                 function Url(path, child, auxiliary, params) {
                     if (child === void 0) { child = null; }
                     if (auxiliary === void 0) { auxiliary = lang_1.CONST_EXPR([]); }
-                    if (params === void 0) { params = null; }
+                    if (params === void 0) { params = lang_1.CONST_EXPR({}); }
                     this.path = path;
                     this.child = child;
                     this.auxiliary = auxiliary;
@@ -71,10 +71,11 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                         '';
                 };
                 Url.prototype._matrixParamsToString = function () {
-                    if (lang_1.isBlank(this.params)) {
-                        return '';
+                    var paramString = serializeParams(this.params, ';');
+                    if (paramString.length > 0) {
+                        return ';' + paramString;
                     }
-                    return ';' + serializeParams(this.params).join(';');
+                    return '';
                 };
                 /** @internal */
                 Url.prototype._childString = function () { return lang_1.isPresent(this.child) ? ('/' + this.child.toString()) : ''; };
@@ -97,7 +98,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                     if (lang_1.isBlank(this.params)) {
                         return '';
                     }
-                    return '?' + serializeParams(this.params).join('&');
+                    return '?' + serializeParams(this.params);
                 };
                 return RootUrl;
             }(Url));

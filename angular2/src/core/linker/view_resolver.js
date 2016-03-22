@@ -66,7 +66,7 @@ System.register(['angular2/src/core/di', '../metadata/view', '../metadata/direct
                     });
                     if (lang_1.isPresent(compMeta)) {
                         if (lang_1.isBlank(compMeta.template) && lang_1.isBlank(compMeta.templateUrl) && lang_1.isBlank(viewMeta)) {
-                            throw new exceptions_1.BaseException("Component '" + lang_1.stringify(component) + "' must have either 'template', 'templateUrl', or '@View' set.");
+                            throw new exceptions_1.BaseException("Component '" + lang_1.stringify(component) + "' must have either 'template' or 'templateUrl' set.");
                         }
                         else if (lang_1.isPresent(compMeta.template) && lang_1.isPresent(viewMeta)) {
                             this._throwMixingViewAndComponent("template", component);
@@ -106,7 +106,7 @@ System.register(['angular2/src/core/di', '../metadata/view', '../metadata/direct
                     }
                     else {
                         if (lang_1.isBlank(viewMeta)) {
-                            throw new exceptions_1.BaseException("No View decorator found on component '" + lang_1.stringify(component) + "'");
+                            throw new exceptions_1.BaseException("Could not compile '" + lang_1.stringify(component) + "' because it is not a component.");
                         }
                         else {
                             return viewMeta;

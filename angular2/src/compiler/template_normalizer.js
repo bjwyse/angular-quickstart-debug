@@ -152,6 +152,7 @@ System.register(['./directive_metadata', 'angular2/src/facade/lang', 'angular2/s
                     }
                     return null;
                 };
+                TemplatePreparseVisitor.prototype.visitComment = function (ast, context) { return null; };
                 TemplatePreparseVisitor.prototype.visitAttr = function (ast, context) { return null; };
                 TemplatePreparseVisitor.prototype.visitText = function (ast, context) { return null; };
                 return TemplatePreparseVisitor;

@@ -2,13 +2,9 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var lang_1, exceptions_1, collection_1, constants_1, pipe_lifecycle_reflector_1, binding_record_1, directive_record_1;
-    var WrappedValue, _wrappedValues, _wrappedIndex, SimpleChange, _simpleChangesIndex, _simpleChanges, ChangeDetectionUtil;
+    var WrappedValue, _wrappedValues, _wrappedIndex, SimpleChange, ChangeDetectionUtil;
     function _simpleChange(previousValue, currentValue) {
-        var index = _simpleChangesIndex++ % 20;
-        var s = _simpleChanges[index];
-        s.previousValue = previousValue;
-        s.currentValue = currentValue;
-        return s;
+        return new SimpleChange(previousValue, currentValue);
     }
     return {
         setters:[
@@ -87,29 +83,6 @@ System.register(['angular2/src/facade/lang', 'angular2/src/facade/exceptions', '
                 return SimpleChange;
             }());
             exports_1("SimpleChange", SimpleChange);
-            _simpleChangesIndex = 0;
-            _simpleChanges = [
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null),
-                new SimpleChange(null, null)
-            ];
             /* tslint:disable:requireParameterType */
             ChangeDetectionUtil = (function () {
                 function ChangeDetectionUtil() {

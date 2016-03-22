@@ -93,9 +93,9 @@ System.register(['angular2/core', 'angular2/src/facade/collection', 'angular2/sr
         execute: function() {
             Log = (function () {
                 function Log() {
-                    this._result = [];
+                    this.logItems = [];
                 }
-                Log.prototype.add = function (value) { this._result.push(value); };
+                Log.prototype.add = function (value) { this.logItems.push(value); };
                 Log.prototype.fn = function (value) {
                     var _this = this;
                     return function (a1, a2, a3, a4, a5) {
@@ -104,11 +104,11 @@ System.register(['angular2/core', 'angular2/src/facade/collection', 'angular2/sr
                         if (a3 === void 0) { a3 = null; }
                         if (a4 === void 0) { a4 = null; }
                         if (a5 === void 0) { a5 = null; }
-                        _this._result.push(value);
+                        _this.logItems.push(value);
                     };
                 };
-                Log.prototype.clear = function () { this._result = []; };
-                Log.prototype.result = function () { return this._result.join("; "); };
+                Log.prototype.clear = function () { this.logItems = []; };
+                Log.prototype.result = function () { return this.logItems.join("; "); };
                 Log = __decorate([
                     core_1.Injectable(), 
                     __metadata('design:paramtypes', [])

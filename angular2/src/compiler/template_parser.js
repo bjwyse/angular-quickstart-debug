@@ -120,8 +120,8 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
             exports_1("TEMPLATE_TRANSFORMS", TEMPLATE_TRANSFORMS = lang_2.CONST_EXPR(new core_1.OpaqueToken('TemplateTransforms')));
             TemplateParseError = (function (_super) {
                 __extends(TemplateParseError, _super);
-                function TemplateParseError(message, location) {
-                    _super.call(this, location, message);
+                function TemplateParseError(message, span) {
+                    _super.call(this, span, message);
                 }
                 return TemplateParseError;
             }(parse_util_1.ParseError));
@@ -174,7 +174,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                     pipes.forEach(function (pipe) { return _this.pipesByName.set(pipe.name, pipe); });
                 }
                 TemplateParseVisitor.prototype._reportError = function (message, sourceSpan) {
-                    this.errors.push(new TemplateParseError(message, sourceSpan.start));
+                    this.errors.push(new TemplateParseError(message, sourceSpan));
                 };
                 TemplateParseVisitor.prototype._parseInterpolation = function (value, sourceSpan) {
                     var sourceInfo = sourceSpan.start.toString();
@@ -254,6 +254,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                 TemplateParseVisitor.prototype.visitAttr = function (ast, contex) {
                     return new template_ast_1.AttrAst(ast.name, ast.value, ast.sourceSpan);
                 };
+                TemplateParseVisitor.prototype.visitComment = function (ast, context) { return null; };
                 TemplateParseVisitor.prototype.visitElement = function (element, component) {
                     var _this = this;
                     var nodeName = element.name;
@@ -636,6 +637,7 @@ System.register(['angular2/src/facade/collection', 'angular2/src/facade/lang', '
                     var children = html_ast_1.htmlVisitAll(this, ast.children, EMPTY_COMPONENT);
                     return new template_ast_1.ElementAst(ast.name, html_ast_1.htmlVisitAll(this, ast.attrs), [], [], [], [], children, ngContentIndex, ast.sourceSpan);
                 };
+                NonBindableVisitor.prototype.visitComment = function (ast, context) { return null; };
                 NonBindableVisitor.prototype.visitAttr = function (ast, context) {
                     return new template_ast_1.AttrAst(ast.name, ast.value, ast.sourceSpan);
                 };

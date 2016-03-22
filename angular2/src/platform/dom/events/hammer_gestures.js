@@ -53,9 +53,9 @@ System.register(['./hammer_common', 'angular2/src/facade/lang', 'angular2/src/fa
                         var mc = new Hammer(element);
                         mc.get('pinch').set({ enable: true });
                         mc.get('rotate').set({ enable: true });
-                        var handler = function (eventObj) { zone.run(function () { handler(eventObj); }); };
-                        mc.on(eventName, handler);
-                        return function () { mc.off(eventName, handler); };
+                        var callback = function (eventObj) { zone.run(function () { handler(eventObj); }); };
+                        mc.on(eventName, callback);
+                        return function () { mc.off(eventName, callback); };
                     });
                 };
                 HammerGesturesPlugin = __decorate([

@@ -28,7 +28,6 @@ System.register(['angular2/core', 'angular2/src/facade/lang', 'angular2/src/faca
             }],
         execute: function() {
             _WHEN_DEFAULT = lang_1.CONST_EXPR(new Object());
-            /** @internal */
             SwitchView = (function () {
                 function SwitchView(_viewContainerRef, _templateRef) {
                     this._viewContainerRef = _viewContainerRef;
@@ -58,8 +57,8 @@ System.register(['angular2/core', 'angular2/src/facade/lang', 'angular2/src/faca
              * ### Example ([live demo](http://plnkr.co/edit/DQMTII95CbuqWrl3lYAs?p=preview))
              *
              * ```typescript
-             * @Component({selector: 'app'})
-             * @View({
+             * @Component({
+             *   selector: 'app',
              *   template: `
              *     <p>Value = {{value}}</p>
              *     <button (click)="inc()">Increment</button>

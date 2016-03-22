@@ -16,6 +16,10 @@ System.register(['./differs/iterable_differs', './differs/default_iterable_diffe
             },
             function (default_iterable_differ_1_1) {
                 default_iterable_differ_1 = default_iterable_differ_1_1;
+                exports_1({
+                    "DefaultIterableDifferFactory": default_iterable_differ_1_1["DefaultIterableDifferFactory"],
+                    "CollectionChangeRecord": default_iterable_differ_1_1["CollectionChangeRecord"]
+                });
             },
             function (keyvalue_differs_1_1) {
                 keyvalue_differs_1 = keyvalue_differs_1_1;
@@ -27,6 +31,10 @@ System.register(['./differs/iterable_differs', './differs/default_iterable_diffe
             },
             function (default_keyvalue_differ_1_1) {
                 default_keyvalue_differ_1 = default_keyvalue_differ_1_1;
+                exports_1({
+                    "DefaultKeyValueDifferFactory": default_keyvalue_differ_1_1["DefaultKeyValueDifferFactory"],
+                    "KeyValueChangeRecord": default_keyvalue_differ_1_1["KeyValueChangeRecord"]
+                });
             },
             function (lang_1_1) {
                 lang_1 = lang_1_1;

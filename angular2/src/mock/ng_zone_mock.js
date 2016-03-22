@@ -36,16 +36,17 @@ System.register(['angular2/src/core/di', 'angular2/src/core/zone/ng_zone', 'angu
                 __extends(MockNgZone, _super);
                 function MockNgZone() {
                     _super.call(this, { enableLongStackTrace: false });
-                    this._mockOnEventDone = new async_1.EventEmitter(false);
+                    /** @internal */
+                    this._mockOnStable = new async_1.EventEmitter(false);
                 }
-                Object.defineProperty(MockNgZone.prototype, "onEventDone", {
-                    get: function () { return this._mockOnEventDone; },
+                Object.defineProperty(MockNgZone.prototype, "onStable", {
+                    get: function () { return this._mockOnStable; },
                     enumerable: true,
                     configurable: true
                 });
                 MockNgZone.prototype.run = function (fn) { return fn(); };
                 MockNgZone.prototype.runOutsideAngular = function (fn) { return fn(); };
-                MockNgZone.prototype.simulateZoneExit = function () { async_1.ObservableWrapper.callNext(this.onEventDone, null); };
+                MockNgZone.prototype.simulateZoneExit = function () { async_1.ObservableWrapper.callNext(this.onStable, null); };
                 MockNgZone = __decorate([
                     di_1.Injectable(), 
                     __metadata('design:paramtypes', [])
